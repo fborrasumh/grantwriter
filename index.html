@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrantWriter — Memorias de Proyectos con IA</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#f4f7fb;min-height:100vh;color:#0d1f35}
+
+/* HEADER */
+.app-header{background:linear-gradient(160deg,#0a2240 0%,#0d3460 100%);padding:2rem 1.5rem 3.8rem;position:relative;overflow:hidden}
+.app-header::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(26,111,173,0.2) 0%,transparent 70%)}
+.app-header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:44px;background:#f4f7fb;clip-path:ellipse(52% 100% at 50% 100%)}
+.header-badge{display:inline-flex;align-items:center;gap:.35rem;background:rgba(26,111,173,0.25);border:1px solid rgba(26,111,173,0.4);border-radius:99px;padding:.22rem .7rem;font-size:.7rem;font-weight:700;color:#7ab8e8;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.55rem}
+.header-icon{width:56px;height:56px;background:rgba(26,111,173,0.2);border:1px solid rgba(26,111,173,0.35);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#7ab8e8;flex-shrink:0}
+
+/* STEPS */
+.steps-bar{display:flex;align-items:center;margin:2rem auto 1.5rem;max-width:760px;padding:0 1.5rem}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.step-circle{width:38px;height:38px;border-radius:50%;border:2px solid #c8d8e8;background:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#8aA0b8;transition:all .3s;z-index:1}
+.step-circle.active{border-color:#1a6fad;background:#1a6fad;color:#fff;box-shadow:0 0 0 4px rgba(26,111,173,0.18)}
+.step-circle.done{border-color:#1a6fad;background:#1a6fad;color:#fff}
+.step-label{font-size:.63rem;font-weight:600;color:#8aa0b8;text-align:center;white-space:nowrap;letter-spacing:.03em}
+.step-label.active{color:#1a6fad;font-weight:700}
+.step-connector{flex:1;height:2px;background:#c8d8e8;margin-bottom:22px;transition:background .3s}
+.step-connector.done{background:#1a6fad}
+
+/* CARDS */
+.card{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 2px 20px rgba(10,34,64,0.08);border:1px solid #dce8f4}
+.section-title{font-family:'Source Serif 4',Georgia,serif;font-size:1.25rem;font-weight:700;color:#0a2240;margin:0 0 .2rem;letter-spacing:-.01em}
+.section-sub{font-size:.82rem;color:#6a80a0;margin:0 0 1.4rem;line-height:1.5}
+.form-label{font-size:.73rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.38rem;display:block}
+input[type="text"],input[type="password"],input[type="number"],textarea,select{width:100%;border:1.5px solid #c8d8e8;border-radius:10px;padding:.62rem .88rem;font-family:'Inter',inherit;font-size:.9rem;color:#0d1f35;background:#f8fafd;outline:none;transition:border-color .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{border-color:#1a6fad;box-shadow:0 0 0 3px rgba(26,111,173,0.1);background:#fff}
+
+/* CONVOCATORIA CARDS */
+.conv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;margin-bottom:1.4rem}
+.conv-card{border:2px solid #dce8f4;border-radius:13px;padding:.8rem .7rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.35rem;text-align:center;background:#f8fafd;position:relative}
+.conv-card:hover{border-color:#1a6fad;background:#eef5fc;transform:translateY(-2px)}
+.conv-card.active{border-color:var(--cc,#1a6fad);background:var(--cb,#eef5fc);box-shadow:0 0 0 3px rgba(26,111,173,0.12)}
+.conv-card .cc{position:absolute;top:7px;right:7px;width:17px;height:17px;border-radius:50%;background:var(--cc,#1a6fad);color:#fff;display:none;align-items:center;justify-content:center;font-size:.58rem;font-weight:700}
+.conv-card.active .cc{display:flex}
+.conv-logo{font-size:1.5rem;line-height:1}
+.conv-name{font-size:.75rem;font-weight:700;color:#0a2240;line-height:1.25}
+.conv-sub{font-size:.65rem;color:#6a80a0;line-height:1.3}
+
+/* SECCIONES CHECKBOXES */
+.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.2rem}
+.sec-check{display:flex;align-items:center;gap:.5rem;padding:.55rem .8rem;border:1.5px solid #dce8f4;border-radius:9px;cursor:pointer;transition:all .2s;background:#f8fafd;font-size:.84rem;font-weight:500;color:#3a5070;user-select:none}
+.sec-check:hover{border-color:#1a6fad;background:#eef5fc}
+.sec-check input[type="checkbox"]{width:15px;height:15px;accent-color:#1a6fad;cursor:pointer;flex-shrink:0}
+.sec-check.checked{border-color:#1a6fad;background:#eef5fc;color:#0a2240}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed #b0c8e0;border-radius:13px;padding:1.8rem 1.5rem;text-align:center;cursor:pointer;transition:all .25s;background:#f8fafd;position:relative}
+.upload-zone:hover,.upload-zone.dragover{border-color:#1a6fad;background:#eef5fc}
+.upload-zone.has-file{border-color:#1a6fad;background:#eef5fc;border-style:solid}
+.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* AGENT PIPELINE — vertical timeline */
+.pipeline-wrap{background:#08182e;border-radius:16px;padding:1.4rem;margin-bottom:1.4rem}
+.pipeline-hdr{font-size:.7rem;font-weight:700;color:#4a6a90;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
+.agents-list{display:flex;flex-direction:column;gap:0}
+.agent-row{display:flex;align-items:flex-start;gap:.8rem;padding:.55rem 0;position:relative}
+.agent-row:not(:last-child)::after{content:'';position:absolute;left:17px;top:42px;width:2px;height:calc(100% - 8px);background:#1a2a40}
+.agent-dot{width:36px;height:36px;border-radius:50%;border:2px solid #1a2a40;background:#0f1e30;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;transition:all .4s;z-index:1}
+.agent-dot.idle{border-color:#1a2a40}
+.agent-dot.running{border-color:#1a6fad;background:rgba(26,111,173,.2);box-shadow:0 0 0 5px rgba(26,111,173,.15);animation:pulse-a 1.2s ease infinite}
+.agent-dot.done{border-color:#27ae60;background:rgba(39,174,96,.15)}
+.agent-info{flex:1;padding-top:.35rem}
+.agent-name{font-size:.78rem;font-weight:700;color:#4a6a90;line-height:1}
+.agent-name.running{color:#7ab8e8}
+.agent-name.done{color:#5ec87e}
+.agent-msg{font-size:.72rem;color:#2a4a70;margin-top:2px;font-family:'JetBrains Mono',monospace;min-height:14px}
+.agent-msg.active{color:#a0c4e8}
+.agent-msg.success{color:#5ec87e}
+.agent-msg.ref{color:#5080d0}
+.agent-phase{width:4px;border-radius:99px;align-self:stretch;flex-shrink:0;background:#1a2a40;margin-top:.35rem}
+.agent-phase.biblio{background:#1a6fad}
+.agent-phase.analisis{background:#e67e22}
+.agent-phase.redaccion{background:#27ae60}
+.agent-phase.evaluacion{background:#c0392b}
+@keyframes pulse-a{0%{box-shadow:0 0 0 0 rgba(26,111,173,.4)}70%{box-shadow:0 0 0 8px rgba(26,111,173,0)}100%{box-shadow:0 0 0 0 rgba(26,111,173,0)}}
+
+/* REFS */
+.ref-chip{display:inline-flex;align-items:center;gap:3px;background:#e8f0ff;color:#1a4fad;border-radius:4px;padding:2px 7px;font-size:.73rem;font-weight:600;margin:2px;border:1px solid #b8d0f0;cursor:help}
+
+/* PROGRESS */
+.progress-track{height:6px;background:#dce8f4;border-radius:99px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#0a2240,#1a6fad);border-radius:99px;transition:width .5s ease}
+
+/* RESULT */
+.result-tabs{display:flex;border-bottom:2px solid #dce8f4;margin-bottom:1.4rem;overflow-x:auto;gap:0}
+.result-tab{padding:.65rem 1rem;border:none;background:transparent;font-family:inherit;font-size:.83rem;font-weight:600;color:#6a80a0;cursor:pointer;transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.result-tab.active{color:#1a6fad;border-bottom-color:#1a6fad}
+.result-tab:hover:not(.active){color:#0a2240}
+.result-pane{display:none}
+.result-pane.active{display:block}
+.mem-section{margin-bottom:1.6rem;padding:1.2rem 1.4rem;border-radius:13px;background:#f8fafd;border-left:4px solid #1a6fad}
+.mem-section-title{font-family:'Source Serif 4',Georgia,serif;font-size:1rem;font-weight:700;color:#0a2240;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
+.mem-section-body{font-size:.9rem;line-height:1.85;color:#0d1f35;white-space:pre-wrap;font-family:'Source Serif 4',Georgia,serif}
+.score-bar{height:10px;background:#dce8f4;border-radius:99px;overflow:hidden;margin-top:.3rem}
+.score-fill{height:100%;border-radius:99px;transition:width .8s ease}
+
+/* BUTTONS */
+.btn-primary{background:#1a6fad;color:#fff;border:none;border-radius:11px;padding:.78rem 1.6rem;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-primary:hover{background:#0a5a9a}
+.btn-primary:disabled{background:#8ab0d0;cursor:not-allowed}
+.btn-secondary{background:transparent;color:#1a6fad;border:2px solid #1a6fad;border-radius:11px;padding:.7rem 1.4rem;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-secondary:hover{background:#eef5fc}
+.btn-dark{background:#0a2240;color:#fff;border:none;border-radius:11px;padding:.78rem 1.6rem;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-dark:hover{background:#0d3460}
+.btn-dark:disabled{background:#4a6080;cursor:not-allowed}
+.btn-ghost{background:transparent;color:#6a80a0;border:none;border-radius:9px;padding:.5rem .9rem;font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;transition:color .2s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-ghost:hover{color:#0a2240}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#0a2240;color:#fff;padding:.7rem 1.2rem;border-radius:12px;font-size:.87rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:9999;transform:translateY(120%);transition:transform .3s ease;display:flex;align-items:center;gap:.5rem}
+.toast.show{transform:translateY(0)}
+.toast.error{background:#c0392b}
+.toast.success{background:#1a7a3c}
+
+.panel{display:none}.panel.active{display:block}
+.divider{border:none;border-top:1.5px solid #dce8f4;margin:1.3rem 0}
+.chip{display:inline-flex;align-items:center;gap:4px;background:#eef5fc;color:#1a6fad;border-radius:99px;padding:3px 10px;font-size:.74rem;font-weight:700;border:1px solid #b8d4f0}
+
+@media(max-width:640px){
+  .conv-grid{grid-template-columns:repeat(2,1fr)}
+  .sec-grid{grid-template-columns:1fr}
+  .card{padding:1.2rem}
+  .step-label{font-size:.58rem}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div style="max-width:760px;margin:0 auto;">
+    <div class="header-badge"><i class="fa-solid fa-trophy"></i> Grant Writing System · 9 Agentes IA</div>
+    <div style="display:flex;align-items:center;gap:1rem;margin-top:.3rem;">
+      <div class="header-icon"><i class="fa-solid fa-file-contract"></i></div>
+      <div>
+        <h1 style="font-family:'Source Serif 4',Georgia,serif;font-size:1.85rem;font-weight:700;color:#fff;margin:0;letter-spacing:-.02em;">GrantWriter</h1>
+        <p style="color:#6090b8;font-size:.83rem;margin:.15rem 0 0;">Memorias de proyectos para CDTI · AEI · Horizonte Europa · IVACE y más</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STEPS -->
+<div class="steps-bar">
+  <div class="step-item">
+    <div class="step-circle active" id="sc1"><i class="fa-solid fa-building-columns" style="font-size:.72rem;"></i></div>
+    <span class="step-label active" id="sl1">Convocatoria</span>
+  </div>
+  <div class="step-connector" id="con1"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc2"><i class="fa-solid fa-flask" style="font-size:.72rem;"></i></div>
+    <span class="step-label" id="sl2">Proyecto</span>
+  </div>
+  <div class="step-connector" id="con2"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc3"><i class="fa-solid fa-sliders" style="font-size:.72rem;"></i></div>
+    <span class="step-label" id="sl3">Secciones</span>
+  </div>
+  <div class="step-connector" id="con3"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc4"><i class="fa-solid fa-robot" style="font-size:.72rem;"></i></div>
+    <span class="step-label" id="sl4">Agentes</span>
+  </div>
+  <div class="step-connector" id="con4"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc5"><i class="fa-solid fa-file-lines" style="font-size:.72rem;"></i></div>
+    <span class="step-label" id="sl5">Memoria</span>
+  </div>
+</div>
+
+<main style="max-width:760px;margin:0 auto;padding:0 1.5rem 3rem;">
+
+  <!-- ── PANEL 1: CONVOCATORIA ── -->
+  <div class="panel active" id="panel1">
+    <div class="card">
+      <div class="section-title">Selecciona la convocatoria</div>
+      <p class="section-sub">El pipeline adaptará el lenguaje, criterios de evaluación e idioma a cada organismo.</p>
+
+      <div class="conv-grid" id="convGrid">
+        <div class="conv-card" onclick="selConv(this,'cdti')" style="--cc:#e67e22;--cb:#fff8f2;" data-conv="cdti">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">🏭</div>
+          <div class="conv-name">CDTI</div>
+          <div class="conv-sub">Proyectos I+D+i empresariales</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'aei')" style="--cc:#c0392b;--cb:#fff5f5;" data-conv="aei">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">🔬</div>
+          <div class="conv-name">AEI</div>
+          <div class="conv-sub">Proyectos Generación del Conocimiento</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'horizonte')" style="--cc:#1a6fad;--cb:#eef5fc;" data-conv="horizonte">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">🇪🇺</div>
+          <div class="conv-name">Horizonte Europa</div>
+          <div class="conv-sub">ERC · MSCA · Pilares 1-3</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'ivace')" style="--cc:#8e44ad;--cb:#f9f0ff;" data-conv="ivace">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">🌊</div>
+          <div class="conv-name">IVACE</div>
+          <div class="conv-sub">Comunitat Valenciana</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'torres_quevedo')" style="--cc:#27ae60;--cb:#f0fff4;" data-conv="torres_quevedo">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">👨‍🔬</div>
+          <div class="conv-name">Torres Quevedo</div>
+          <div class="conv-sub">Contratos investigadores en empresa</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'retos')" style="--cc:#16a085;--cb:#f0fffe;" data-conv="retos">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">🎯</div>
+          <div class="conv-name">Retos Colaboración</div>
+          <div class="conv-sub">AEI · Universidad + empresa</div>
+        </div>
+        <div class="conv-card" onclick="selConv(this,'personalizado')" style="--cc:#1a6fad;--cb:#eef5fc;" data-conv="personalizado" id="cardPersonalizado">
+          <div class="cc"><i class="fa-solid fa-check"></i></div>
+          <div class="conv-logo">⚙️</div>
+          <div class="conv-name">Otra / Libre</div>
+          <div class="conv-sub">Define tus propios criterios</div>
+        </div>
+      </div>
+
+      <!-- Custom convocatoria -->
+      <div id="customConvWrap" style="display:none;margin-bottom:1.2rem;">
+        <label class="form-label">Nombre y criterios de la convocatoria</label>
+        <textarea id="customConvDesc" rows="3" placeholder="Ej. Convocatoria PRUAB 2025 — Proyectos de innovación universitaria. Criterios: originalidad, viabilidad, impacto social, presupuesto máximo 150.000€…"></textarea>
+      </div>
+
+      <div style="margin-bottom:1.4rem;">
+        <label class="form-label">Idioma de la memoria</label>
+        <select id="idiomaMemoria">
+          <option value="auto">Automático según convocatoria</option>
+          <option value="es">Español</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom:1.4rem;">
+        <label class="form-label">Clave API OpenAI</label>
+        <div style="position:relative;">
+          <input type="password" id="apiKey" placeholder="sk-..." style="padding-right:2.8rem;">
+          <button onclick="toggleApiKey()" style="position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a80a0;font-size:.9rem;">
+            <i class="fa-regular fa-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+        <p style="font-size:.72rem;color:#6a80a0;margin:.35rem 0 0;display:flex;align-items:center;gap:.3rem;">
+          <i class="fa-solid fa-lock" style="font-size:.65rem;"></i> Guardada localmente, nunca se comparte.
+        </p>
+      </div>
+
+      <button class="btn-primary" onclick="irPaso2()" style="width:100%;">
+        Siguiente — Describir el proyecto <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── PANEL 2: PROYECTO ── -->
+  <div class="panel" id="panel2">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+        <div class="section-title">Describe el proyecto</div>
+        <button class="btn-ghost" onclick="irPaso1()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+      </div>
+      <p class="section-sub">Cuanta más información aportes, mejor será la memoria generada.</p>
+
+      <div style="margin-bottom:1.1rem;">
+        <label class="form-label">Título del proyecto</label>
+        <input type="text" id="tituloProyecto" placeholder="Título completo o provisional del proyecto">
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;">
+        <div>
+          <label class="form-label">Entidad solicitante</label>
+          <input type="text" id="entidad" placeholder="Ej. Universidad Miguel Hernández / Empresa SL">
+        </div>
+        <div>
+          <label class="form-label">Área temática / sector</label>
+          <input type="text" id="area" placeholder="Ej. Biotecnología, IA aplicada, Agroalimentación…">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;">
+        <div>
+          <label class="form-label">Investigador/a principal</label>
+          <input type="text" id="ip" placeholder="Nombre completo">
+        </div>
+        <div>
+          <label class="form-label">Duración (meses)</label>
+          <input type="number" id="duracion" value="36" min="6" max="60">
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.1rem;">
+        <label class="form-label">Descripción del proyecto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(idea principal, problema que resuelve, innovación)</span></label>
+        <textarea id="descripcionProyecto" rows="6" placeholder="Describe brevemente la idea central del proyecto: qué problema resuelve, cuál es la innovación o novedad científica, cuáles son los objetivos principales, y qué resultados esperas conseguir…"></textarea>
+      </div>
+
+      <div style="margin-bottom:1.1rem;">
+        <label class="form-label">Capacidades del equipo investigador</label>
+        <textarea id="equipo" rows="3" placeholder="Experiencia previa relevante, publicaciones destacadas, proyectos previos, infraestructura disponible…"></textarea>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Documentos previos -->
+      <div style="margin-bottom:1.1rem;">
+        <label class="form-label">Documentos de contexto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(opcional — artículos, memorias previas, informes…)</span></label>
+        <div class="upload-zone" id="docUploadZone">
+          <input type="file" id="docFile" accept=".pdf,.docx,.doc,.txt" onchange="onDocSelected(this)" multiple>
+          <i class="fa-solid fa-file-arrow-up" style="font-size:1.8rem;color:#a0b8d0;display:block;margin-bottom:.6rem;"></i>
+          <p style="font-weight:700;color:#1a6fad;margin:0 0 .2rem;font-size:.88rem;">Arrastra documentos de contexto</p>
+          <p style="font-size:.76rem;color:#6a80a0;margin:0;">PDF, Word o TXT · se extraerá el texto automáticamente</p>
+        </div>
+        <div id="docFileList" style="margin-top:.6rem;display:flex;flex-wrap:wrap;gap:.4rem;"></div>
+      </div>
+
+      <button class="btn-primary" onclick="irPaso3()" style="width:100%;">
+        Siguiente — Seleccionar secciones <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── PANEL 3: SECCIONES ── -->
+  <div class="panel" id="panel3">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
+        <div class="section-title">Secciones de la memoria</div>
+        <button class="btn-ghost" onclick="irPaso2()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+      </div>
+      <p class="section-sub">Selecciona las secciones que deseas incluir. Los agentes generarán cada una por separado.</p>
+
+      <div class="sec-grid" id="secGrid">
+        <label class="sec-check checked"><input type="checkbox" checked value="resumen" onchange="updateSec(this)"> Resumen ejecutivo</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="introduccion" onchange="updateSec(this)"> Introducción y antecedentes</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="estado_arte" onchange="updateSec(this)"> Estado del arte</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="objetivos" onchange="updateSec(this)"> Objetivos (general y específicos)</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="metodologia" onchange="updateSec(this)"> Metodología y plan de trabajo</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="innovacion" onchange="updateSec(this)"> Innovación y novedad científica</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="impacto" onchange="updateSec(this)"> Impacto y transferencia</label>
+        <label class="sec-check checked"><input type="checkbox" checked value="equipo" onchange="updateSec(this)"> Equipo investigador</label>
+        <label class="sec-check"><input type="checkbox" value="riesgos" onchange="updateSec(this)"> Análisis de riesgos</label>
+        <label class="sec-check"><input type="checkbox" value="presupuesto" onchange="updateSec(this)"> Presupuesto orientativo</label>
+        <label class="sec-check"><input type="checkbox" value="diseminacion" onchange="updateSec(this)"> Plan de diseminación</label>
+        <label class="sec-check"><input type="checkbox" value="etica" onchange="updateSec(this)"> Consideraciones éticas</label>
+      </div>
+
+      <hr class="divider">
+
+      <div style="margin-bottom:1.4rem;">
+        <label class="form-label">Instrucciones adicionales para los agentes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(opcional)</span></label>
+        <textarea id="instrucciones" rows="3" placeholder="Ej. Enfatizar el impacto en el sector agroalimentario valenciano. Evitar tecnicismos excesivos en el resumen ejecutivo. Presupuesto máximo 250.000€."></textarea>
+      </div>
+
+      <button class="btn-primary" onclick="irPaso4()" style="width:100%;">
+        <i class="fa-solid fa-robot"></i> Lanzar pipeline de 9 agentes
+      </button>
+    </div>
+  </div>
+
+  <!-- ── PANEL 4: PIPELINE ── -->
+  <div class="panel" id="panel4">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
+        <div class="section-title">Pipeline multiagente</div>
+        <button class="btn-ghost" onclick="irPaso3()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+      </div>
+
+      <div class="pipeline-wrap">
+        <div class="pipeline-hdr"><i class="fa-solid fa-circle-nodes"></i> 9 agentes especializados</div>
+        <div class="agents-list" id="agentsList"></div>
+      </div>
+
+      <div style="margin-bottom:1.2rem;">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#3a5070;margin-bottom:.4rem;">
+          <span id="globalStatus">Iniciando pipeline…</span>
+          <span id="globalPct">0%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="globalBar" style="width:0%"></div></div>
+      </div>
+
+      <!-- Referencias encontradas -->
+      <div id="refsSection" style="display:none;margin-bottom:1.2rem;">
+        <label class="form-label" style="margin-bottom:.5rem;">Referencias encontradas <span id="refsCount" class="chip"></span></label>
+        <div id="refsList" style="display:flex;flex-wrap:wrap;gap:.35rem;"></div>
+      </div>
+
+      <button class="btn-primary" id="btnVerMemoria" onclick="irPaso5()" style="display:none;width:100%;">
+        <i class="fa-solid fa-file-lines"></i> Ver memoria completa
+      </button>
+    </div>
+  </div>
+
+  <!-- ── PANEL 5: MEMORIA ── -->
+  <div class="panel" id="panel5">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
+        <div class="section-title">Memoria generada</div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+          <button class="btn-ghost" onclick="irPaso4()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
+          <button class="btn-secondary" onclick="regenerar()"><i class="fa-solid fa-rotate-right"></i> Regenerar</button>
+        </div>
+      </div>
+
+      <!-- Conv badge -->
+      <div id="convBadge" style="background:#eef5fc;border-radius:9px;padding:.55rem 1rem;margin-bottom:1.2rem;font-size:.83rem;color:#0a2240;display:flex;align-items:center;gap:.5rem;font-weight:700;">
+        <i class="fa-solid fa-building-columns"></i><span id="convBadgeText"></span>
+      </div>
+
+      <!-- Score evaluación -->
+      <div id="scoreSection" style="margin-bottom:1.4rem;padding:1rem 1.2rem;background:#f8fafd;border-radius:12px;border:1px solid #dce8f4;display:none;">
+        <div style="font-size:.75rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.8rem;">Evaluación del agente de calidad</div>
+        <div id="scoreItems"></div>
+      </div>
+
+      <!-- Result tabs -->
+      <div class="result-tabs" id="resultTabs"></div>
+      <div id="resultPanes"></div>
+
+      <!-- Bibliografía integrada -->
+      <div id="bibSection" style="display:none;margin-bottom:1.2rem;">
+        <div style="font-size:.75rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem;">Referencias bibliográficas integradas</div>
+        <div id="bibList"></div>
+      </div>
+
+      <!-- Export -->
+      <div style="border-top:1.5px solid #dce8f4;padding-top:1.2rem;margin-top:1.5rem;display:flex;gap:.8rem;flex-wrap:wrap;">
+        <button class="btn-primary" onclick="exportarWord()" id="btnWord"><i class="fa-solid fa-file-word"></i> Descargar Word</button>
+        <button class="btn-dark" onclick="exportarPDF()" id="btnPDF"><i class="fa-solid fa-file-pdf"></i> Descargar PDF</button>
+        <button class="btn-ghost" onclick="copiarTodo()"><i class="fa-regular fa-copy"></i> Copiar texto</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.2rem;">
+      <button class="btn-ghost" onclick="nuevo()"><i class="fa-solid fa-plus"></i> Nueva memoria</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let convActiva=null, seccionesActivas=new Set(['resumen','introduccion','estado_arte','objetivos','metodologia','innovacion','impacto','equipo']);
+let docTextos=[], refsEncontradas=[], resultado=null, docFiles=[];
+
+// ─── CONVOCATORIA CONFIG ──────────────────────────────────────────────────────
+const CONV_CONFIG={
+  cdti:{label:'CDTI — Proyectos I+D+i',idioma:'es',criterios:'Viabilidad técnica, mercado potencial, equipo empresarial, TRL objetivo, plan de explotación comercial',instrBase:'Usa terminología empresarial e innovadora. Enfatiza el valor de mercado y la transferencia tecnológica.'},
+  aei:{label:'AEI — Proyectos Generación del Conocimiento',idioma:'es',criterios:'Calidad científica, originalidad, metodología, trayectoria del equipo, publicaciones previas',instrBase:'Usa lenguaje académico riguroso. Enfatiza la contribución al conocimiento científico y la publicación de resultados.'},
+  horizonte:{label:'Horizonte Europa',idioma:'en',criterios:'Excellence, Impact, Quality and efficiency of implementation. TRL, consortium, dissemination plan, ethics',instrBase:'Write in formal academic English. Follow the Horizon Europe proposal structure. Emphasize European added value and cross-border collaboration.'},
+  ivace:{label:'IVACE — Comunitat Valenciana',idioma:'es',criterios:'Impacto en la economía valenciana, empleo generado, innovación tecnológica, colaboración público-privada',instrBase:'Enfatiza el impacto local en la Comunitat Valenciana, la creación de empleo y la competitividad empresarial regional.'},
+  torres_quevedo:{label:'Torres Quevedo — PTI',idioma:'es',criterios:'Perfil del investigador, plan de investigación en empresa, transferencia de conocimiento, viabilidad del proyecto',instrBase:'Describe el plan de investigación del PTI, la empresa receptora y el valor añadido para ambas partes.'},
+  retos:{label:'Retos Colaboración AEI',idioma:'es',criterios:'Colaboración universidad-empresa, orientación al mercado, plan de explotación, calidad científica',instrBase:'Enfatiza la colaboración entre el grupo investigador y la empresa, el reto tecnológico a resolver y el plan de explotación conjunto.'},
+  personalizado:{label:'Convocatoria personalizada',idioma:'es',criterios:'Según los criterios definidos por el usuario',instrBase:'Adapta el contenido a los criterios específicos de la convocatoria indicada.'}
+};
+
+// ─── SECCIONES CONFIG ─────────────────────────────────────────────────────────
+const SEC_LABELS={
+  resumen:'Resumen ejecutivo',introduccion:'Introducción y antecedentes',
+  estado_arte:'Estado del arte',objetivos:'Objetivos',
+  metodologia:'Metodología',innovacion:'Innovación',
+  impacto:'Impacto y transferencia',equipo:'Equipo investigador',
+  riesgos:'Análisis de riesgos',presupuesto:'Presupuesto',
+  diseminacion:'Plan de diseminación',etica:'Consideraciones éticas'
+};
+
+// ─── AGENTS CONFIG ────────────────────────────────────────────────────────────
+const AGENTS=[
+  {id:'context',   icon:'📋',label:'Analizador de contexto',       phase:'analisis'},
+  {id:'biblio',    icon:'📚',label:'Agente bibliográfico',          phase:'biblio'},
+  {id:'stateofart',icon:'🔭',label:'Estado del arte',              phase:'biblio'},
+  {id:'strategy',  icon:'🎯',label:'Estratega de convocatoria',    phase:'analisis'},
+  {id:'writer',    icon:'✍️',label:'Redactor principal',           phase:'redaccion'},
+  {id:'impact',    icon:'🚀',label:'Agente de impacto',            phase:'redaccion'},
+  {id:'adequacy',  icon:'✅',label:'Adecuación a convocatoria',    phase:'evaluacion'},
+  {id:'coherence', icon:'🔗',label:'Agente de coherencia',         phase:'evaluacion'},
+  {id:'qa',        icon:'⭐',label:'Control de calidad',           phase:'evaluacion'}
+];
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+window.onload=()=>{
+  const k=localStorage.getItem('grantwriter_apikey');
+  if(k) document.getElementById('apiKey').value=k;
+  buildAgentsList();
+};
+
+function buildAgentsList(){
+  const list=document.getElementById('agentsList');
+  list.innerHTML='';
+  AGENTS.forEach(ag=>{
+    const row=document.createElement('div');
+    row.className='agent-row';
+    row.id='row-'+ag.id;
+    row.innerHTML=`
+      <div class="agent-dot idle" id="dot-${ag.id}">${ag.icon}</div>
+      <div class="agent-info">
+        <div class="agent-name" id="name-${ag.id}">${ag.label}</div>
+        <div class="agent-msg" id="msg-${ag.id}">En espera…</div>
+      </div>
+      <div class="agent-phase ${ag.phase}"></div>`;
+    list.appendChild(row);
+  });
+}
+
+// ─── STEPS ────────────────────────────────────────────────────────────────────
+function setStep(n){
+  [1,2,3,4,5].forEach(i=>{
+    document.getElementById('panel'+i).classList.toggle('active',i===n);
+    const sc=document.getElementById('sc'+i),sl=document.getElementById('sl'+i);
+    sc.classList.remove('active','done');
+    if(i<n)sc.classList.add('done'); else if(i===n)sc.classList.add('active');
+    sl.classList.toggle('active',i===n);
+  });
+  [1,2,3,4].forEach(i=>document.getElementById('con'+i).classList.toggle('done',i<n));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function irPaso1(){setStep(1);}
+function irPaso2(){
+  if(!convActiva){showToast('Selecciona una convocatoria','error');return;}
+  const k=document.getElementById('apiKey').value.trim();
+  if(!k){showToast('Introduce tu clave API de OpenAI','error');return;}
+  localStorage.setItem('grantwriter_apikey',k);
+  setStep(2);
+}
+function irPaso3(){
+  if(!document.getElementById('descripcionProyecto').value.trim()){
+    showToast('Describe el proyecto antes de continuar','error');return;
+  }
+  setStep(3);
+}
+async function irPaso4(){
+  if(seccionesActivas.size===0){showToast('Selecciona al menos una sección','error');return;}
+  setStep(4);
+  buildAgentsList();
+  await ejecutarPipeline();
+}
+function irPaso5(){setStep(5);renderMemoria();}
+
+// ─── CONV SELECTION ───────────────────────────────────────────────────────────
+function selConv(card,conv){
+  document.querySelectorAll('.conv-card').forEach(c=>c.classList.remove('active'));
+  card.classList.add('active'); convActiva=conv;
+  document.getElementById('customConvWrap').style.display=conv==='personalizado'?'block':'none';
+  // Auto idioma
+  const cfg=CONV_CONFIG[conv]||{};
+  const sel=document.getElementById('idiomaMemoria');
+  if(conv==='horizonte') sel.value='en';
+  else if(conv!=='personalizado') sel.value='es';
+  else sel.value='auto';
+}
+
+// ─── SECCIONES ────────────────────────────────────────────────────────────────
+function updateSec(cb){
+  const lbl=cb.closest('.sec-check');
+  if(cb.checked){seccionesActivas.add(cb.value);lbl.classList.add('checked');}
+  else{seccionesActivas.delete(cb.value);lbl.classList.remove('checked');}
+}
+
+// ─── FILE HANDLING ────────────────────────────────────────────────────────────
+function onDocSelected(input){
+  const files=Array.from(input.files);
+  files.forEach(f=>{
+    if(f.size>11*1024*1024){showToast(`${f.name} supera 10 MB`,'error');return;}
+    docFiles.push(f);
+    const chip=document.createElement('span');
+    chip.className='chip'; chip.style.cursor='default';
+    chip.innerHTML=`<i class="fa-solid fa-file"></i>${f.name.substring(0,25)} <span onclick="removeDoc(this,'${f.name}')" style="cursor:pointer;margin-left:2px;color:#c0392b;">×</span>`;
+    document.getElementById('docFileList').appendChild(chip);
+  });
+  document.getElementById('docUploadZone').classList.add('has-file');
+}
+
+function removeDoc(span,name){
+  docFiles=docFiles.filter(f=>f.name!==name);
+  span.closest('.chip').remove();
+}
+
+async function extraerPDF(file){
+  const buf=await file.arrayBuffer();
+  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
+  let txt='';
+  for(let i=1;i<=Math.min(pdf.numPages,15);i++){
+    const p=await pdf.getPage(i);
+    const c=await p.getTextContent();
+    txt+=c.items.map(it=>it.str).join(' ')+'\n';
+  }
+  return txt;
+}
+
+async function extraerDocx(file){
+  const buf=await file.arrayBuffer();
+  if(!window.JSZip)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  const zip=await JSZip.loadAsync(buf);
+  const xml=await zip.file('word/document.xml').async('string');
+  return xml.replace(/<w:br[^>]*\/>/g,'\n').replace(/<w:p[ >][^>]*>/g,'\n').replace(/<[^>]+>/g,'')
+    .replace(/&amp;/g,'&').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+async function extraerTextoArchivos(){
+  const textos=[];
+  for(const f of docFiles){
+    try{
+      if(f.name.endsWith('.pdf')) textos.push(await extraerPDF(f));
+      else if(f.name.endsWith('.docx')||f.name.endsWith('.doc')) textos.push(await extraerDocx(f));
+      else textos.push(await f.text());
+    }catch(e){textos.push('');}
+  }
+  return textos.join('\n\n---\n\n');
+}
+
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
+
+// ─── BIBLIOGRAFÍA APIs ────────────────────────────────────────────────────────
+async function buscarSS(q){try{const r=await fetch(`https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(q)}&limit=3&fields=title,authors,year,externalIds`);const d=await r.json();return(d.data||[]).map(p=>({title:p.title,authors:(p.authors||[]).map(a=>a.name).join(', '),year:p.year,doi:p.externalIds?.DOI||'',src:'Semantic Scholar'}));}catch{return[];}}
+async function buscarPM(q){try{const sr=await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}&retmax=3&retmode=json`);const sd=await sr.json();const ids=(sd.esearchresult?.idlist||[]).slice(0,3);if(!ids.length)return[];const fr=await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`);const fd=await fr.json();return ids.map(id=>{const a=fd.result?.[id]||{};return{title:a.title||'',authors:(a.authors||[]).map(x=>x.name).join(', '),year:a.pubdate?.split(' ')[0]||'',doi:a.elocationid?.replace('doi: ',''),src:'PubMed'};});}catch{return[];}}
+async function buscarOA(q){try{const r=await fetch(`https://api.openalex.org/works?search=${encodeURIComponent(q)}&per-page=3&select=title,authorships,publication_year,doi`);const d=await r.json();return(d.results||[]).map(w=>({title:w.title,authors:(w.authorships||[]).slice(0,3).map(a=>a.author?.display_name||'').join(', '),year:w.publication_year,doi:w.doi?.replace('https://doi.org/',''),src:'OpenAlex'}));}catch{return[];}}
+async function buscarAX(q){try{const r=await fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(q)}&max_results=2`);const txt=await r.text();const xml=new DOMParser().parseFromString(txt,'text/xml');return Array.from(xml.querySelectorAll('entry')).slice(0,2).map(e=>({title:e.querySelector('title')?.textContent?.trim()||'',authors:Array.from(e.querySelectorAll('author name')).map(a=>a.textContent).join(', '),year:e.querySelector('published')?.textContent?.split('-')[0]||'',doi:e.querySelector('id')?.textContent||'',src:'arXiv'}));}catch{return[];}}
+async function buscarCR(q){try{const r=await fetch(`https://api.crossref.org/works?query=${encodeURIComponent(q)}&rows=2&select=title,author,published,DOI`);const d=await r.json();return(d.message?.items||[]).slice(0,2).map(w=>({title:Array.isArray(w.title)?w.title[0]:w.title||'',authors:(w.author||[]).slice(0,3).map(a=>`${a.given||''} ${a.family||''}`).join(', '),year:w.published?.['date-parts']?.[0]?.[0]||'',doi:w.DOI||'',src:'CrossRef'}));}catch{return[];}}
+async function buscarEP(q){try{const r=await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(q)}&pageSize=2&format=json`);const d=await r.json();return(d.resultList?.result||[]).slice(0,2).map(w=>({title:w.title||'',authors:w.authorString||'',year:w.pubYear||'',doi:w.doi||'',src:'EuropePMC'}));}catch{return[];}}
+
+async function buscarBiblio(queries){
+  const todos=[];
+  for(const q of queries.slice(0,4)){
+    setMsg('biblio',`📚 Buscando: "${q.substring(0,50)}…"`,'active');
+    const [ss,pm,oa,ax,cr,ep]=await Promise.all([buscarSS(q),buscarPM(q),buscarOA(q),buscarAX(q),buscarCR(q),buscarEP(q)]);
+    todos.push(...ss,...pm,...oa,...ax,...cr,...ep);
+  }
+  const seen=new Set();
+  return todos.filter(r=>{const k=(r.title||'').substring(0,50).toLowerCase();if(seen.has(k))return false;seen.add(k);return true;}).slice(0,25);
+}
+
+// ─── AGENT HELPERS ────────────────────────────────────────────────────────────
+function setAgent(id,state){
+  const dot=document.getElementById('dot-'+id);
+  const name=document.getElementById('name-'+id);
+  dot.className='agent-dot '+(state||'idle');
+  name.className='agent-name '+(state||'');
+}
+function setMsg(id,msg,type=''){
+  const el=document.getElementById('msg-'+id);
+  el.className='agent-msg'+(type?' '+type:'');
+  el.textContent=msg;
+}
+function setGlobal(pct,msg){
+  document.getElementById('globalBar').style.width=pct+'%';
+  document.getElementById('globalPct').textContent=pct+'%';
+  document.getElementById('globalStatus').textContent=msg;
+}
+
+async function callGPT(system,user,apiKey,maxTokens=2500){
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+    body:JSON.stringify({model:'gpt-4o-mini',max_tokens:maxTokens,temperature:0.45,
+      messages:[{role:'system',content:system},{role:'user',content:user}]})
+  });
+  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Error API');}
+  const d=await r.json();
+  return d.choices[0].message.content.trim();
+}
+
+function parseJSON(txt,fb){try{return JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{return fb;}}
+
+// ─── PIPELINE 9 AGENTES ───────────────────────────────────────────────────────
+async function ejecutarPipeline(){
+  const apiKey=document.getElementById('apiKey').value.trim();
+  const cfg=CONV_CONFIG[convActiva]||CONV_CONFIG.personalizado;
+  const customConv=document.getElementById('customConvDesc').value.trim();
+  const idiomaEl=document.getElementById('idiomaMemoria').value;
+  const idioma=idiomaEl==='auto'?cfg.idioma:idiomaEl;
+  const titulo=document.getElementById('tituloProyecto').value.trim();
+  const entidad=document.getElementById('entidad').value.trim();
+  const area=document.getElementById('area').value.trim();
+  const ip=document.getElementById('ip').value.trim();
+  const duracion=document.getElementById('duracion').value;
+  const desc=document.getElementById('descripcionProyecto').value.trim();
+  const equipoTxt=document.getElementById('equipo').value.trim();
+  const instrExtra=document.getElementById('instrucciones').value.trim();
+  const secList=[...seccionesActivas];
+
+  AGENTS.forEach(a=>setAgent(a.id,'idle'));
+  document.getElementById('refsSection').style.display='none';
+  document.getElementById('btnVerMemoria').style.display='none';
+  refsEncontradas=[]; resultado=null;
+
+  const ctx=`CONVOCATORIA: ${cfg.label}${customConv?' — '+customConv:''}
+IDIOMA: ${idioma==='en'?'English':'Español'}
+TÍTULO: ${titulo||'(pendiente)'}
+ENTIDAD: ${entidad||'(no indicada)'}
+ÁREA: ${area||'(no indicada)'}
+IP: ${ip||'(no indicado)'}
+DURACIÓN: ${duracion} meses
+DESCRIPCIÓN: ${desc}
+EQUIPO: ${equipoTxt||'(no indicado)'}
+CRITERIOS EVALUACIÓN: ${cfg.criterios}
+INSTRUCCIONES BASE: ${cfg.instrBase}
+${instrExtra?'INSTRUCCIONES ADICIONALES: '+instrExtra:''}`;
+
+  try{
+    // ── AGENTE 1: CONTEXTO ────────────────────────────────────────────────────
+    setAgent('context','running'); setGlobal(4,'Agente 1: Analizando el contexto del proyecto…');
+    setMsg('context','Analizando descripción y extrayendo keywords…','active');
+    if(docFiles.length>0){setMsg('context','Extrayendo texto de documentos adjuntos…','active');docTextos=[await extraerTextoArchivos()];}
+    const analisisCtx=await callGPT(
+      `Eres un experto en gestión de proyectos de I+D. Analiza el contexto del proyecto y extrae: keywords para búsqueda bibliográfica, fortalezas del proyecto, posibles debilidades, y preguntas clave a responder en la memoria. Responde JSON: {"keywords":["kw1","kw2","kw3","kw4"],"fortalezas":["f1"],"debilidades":["d1"],"preguntas_clave":["q1"]}`,
+      `${ctx}\n\nDOCUMENTOS ADICIONALES:\n${docTextos.join('\n\n').substring(0,4000)}`,apiKey,1000);
+    const ctxJson=parseJSON(analisisCtx,{keywords:[area||titulo||'research'],fortalezas:[],debilidades:[],preguntas_clave:[]});
+    setMsg('context',`✓ ${ctxJson.keywords.length} keywords · ${ctxJson.fortalezas.length} fortalezas detectadas`,'success');
+    setAgent('context','done');
+
+    // ── AGENTE 2: BIBLIOGRAFÍA ────────────────────────────────────────────────
+    setAgent('biblio','running'); setGlobal(14,'Agente 2: Buscando bibliografía en 6 bases de datos…');
+    setMsg('biblio','Consultando Semantic Scholar, PubMed, OpenAlex, arXiv, CrossRef, EuropePMC…','active');
+    refsEncontradas=await buscarBiblio(ctxJson.keywords);
+    setMsg('biblio',`✓ ${refsEncontradas.length} referencias encontradas`,'success');
+    setAgent('biblio','done');
+
+    // Mostrar refs en UI
+    document.getElementById('refsSection').style.display='block';
+    document.getElementById('refsCount').textContent=`${refsEncontradas.length} refs`;
+    const rList=document.getElementById('refsList'); rList.innerHTML='';
+    refsEncontradas.slice(0,15).forEach((r,i)=>{
+      const c=document.createElement('span');c.className='ref-chip';
+      c.title=`${r.authors||''} (${r.year||''}) — ${r.src}`;
+      c.textContent=`[${i+1}] ${(r.title||'').substring(0,38)}…`;
+      rList.appendChild(c);
+    });
+
+    const refsBib=refsEncontradas.slice(0,15).map((r,i)=>`[${i+1}] ${r.authors||'Autores'} (${r.year||'s.f.'}). ${r.title}.${r.doi?' DOI: '+r.doi:''} (${r.src})`).join('\n');
+
+    // ── AGENTE 3: ESTADO DEL ARTE ─────────────────────────────────────────────
+    setAgent('stateofart','running'); setGlobal(24,'Agente 3: Elaborando estado del arte…');
+    setMsg('stateofart','Sintetizando literatura encontrada…','active');
+    const estadoArte=await callGPT(
+      `Eres un investigador experto sintetizando el estado del arte para una memoria de proyecto ${cfg.label}. Idioma: ${idioma==='en'?'English':'Español'}. Redacta un estado del arte riguroso citando las referencias disponibles con [N]. Incluye: situación actual del campo, principales tendencias, gaps de conocimiento y cómo el proyecto propuesto los aborda.`,
+      `CONTEXTO:\n${ctx}\n\nREFERENCIAS DISPONIBLES:\n${refsBib}\n\nPREGUNTAS CLAVE A RESPONDER:\n${ctxJson.preguntas_clave.join('\n')}`,apiKey,2000);
+    setMsg('stateofart','✓ Estado del arte redactado','success');
+    setAgent('stateofart','done');
+
+    // ── AGENTE 4: ESTRATEGA ───────────────────────────────────────────────────
+    setAgent('strategy','running'); setGlobal(36,'Agente 4: Definiendo estrategia para la convocatoria…');
+    setMsg('strategy',`Analizando criterios de ${cfg.label}…`,'active');
+    const estrategia=await callGPT(
+      `Eres un experto en financiación de I+D con amplia experiencia en ${cfg.label}. Define la estrategia óptima para maximizar la puntuación de esta propuesta según los criterios de evaluación. Responde JSON: {"angulo_principal":"","puntos_diferenciadores":["p1"],"keywords_convocatoria":["k1"],"tono":"academico|empresarial|mixto","estructura_recomendada":["sección1"]}`,
+      `${ctx}\n\nFORTALEZAS:\n${ctxJson.fortalezas.join('\n')}\n\nDEBILIDADES:\n${ctxJson.debilidades.join('\n')}`,apiKey,1000);
+    const estratJson=parseJSON(estrategia,{angulo_principal:'',puntos_diferenciadores:[],keywords_convocatoria:[],tono:'mixto',estructura_recomendada:[]});
+    setMsg('strategy',`✓ Estrategia: ${estratJson.angulo_principal.substring(0,60)}…`,'success');
+    setAgent('strategy','done');
+
+    // ── AGENTE 5: REDACTOR PRINCIPAL ──────────────────────────────────────────
+    setAgent('writer','running'); setGlobal(50,'Agente 5: Redactando secciones principales…');
+    setMsg('writer','Generando memoria sección por sección…','active');
+
+    const seccionesGeneradas={};
+    const secsParaRedactar=secList.filter(s=>s!=='estado_arte'); // estado_arte ya generado
+
+    for(const sec of secsParaRedactar){
+      setMsg('writer',`Redactando: ${SEC_LABELS[sec]}…`,'active');
+      const contenido=await callGPT(
+        `Eres un redactor experto en memorias de proyectos ${cfg.label}. Idioma: ${idioma==='en'?'English':'Español'}. Tono: ${estratJson.tono}. Redacta la sección "${SEC_LABELS[sec]}" de forma rigurosa, convincente y adaptada a los criterios de evaluación. Cita referencias cuando sea relevante usando [N]. Extiéndete lo necesario para ser convincente pero sin repetición.`,
+        `CONTEXTO:\n${ctx}\n\nANGULO PRINCIPAL: ${estratJson.angulo_principal}\nPUNTOS DIFERENCIADORES: ${estratJson.puntos_diferenciadores.join(', ')}\n\nESTADO DEL ARTE:\n${estadoArte.substring(0,1500)}\n\nREFERENCIAS:\n${refsBib}`,
+        apiKey,2000);
+      seccionesGeneradas[sec]=contenido;
+    }
+    if(secList.includes('estado_arte')) seccionesGeneradas['estado_arte']=estadoArte;
+    setMsg('writer',`✓ ${Object.keys(seccionesGeneradas).length} secciones redactadas`,'success');
+    setAgent('writer','done');
+
+    // ── AGENTE 6: IMPACTO ─────────────────────────────────────────────────────
+    setAgent('impact','running'); setGlobal(66,'Agente 6: Reforzando argumentos de impacto…');
+    setMsg('impact','Potenciando sección de impacto y transferencia…','active');
+    if(seccionesGeneradas['impacto']){
+      const impactoMejorado=await callGPT(
+        `Eres un experto en argumentación de impacto científico, económico y social para convocatorias ${cfg.label}. Mejora y amplía la sección de impacto para hacerla más convincente. Añade indicadores cuantificables, beneficiarios concretos y alineación con políticas públicas cuando corresponda. Idioma: ${idioma==='en'?'English':'Español'}.`,
+        `SECCIÓN ACTUAL:\n${seccionesGeneradas['impacto']}\n\nCONTEXTO:\n${ctx}`,apiKey,1500);
+      seccionesGeneradas['impacto']=impactoMejorado;
+    }
+    setMsg('impact','✓ Impacto reforzado','success');
+    setAgent('impact','done');
+
+    // ── AGENTE 7: ADECUACIÓN ──────────────────────────────────────────────────
+    setAgent('adequacy','running'); setGlobal(76,'Agente 7: Verificando adecuación a la convocatoria…');
+    setMsg('adequacy',`Comprobando alineación con criterios ${cfg.label}…`,'active');
+    const fullMemoria=Object.values(seccionesGeneradas).join('\n\n');
+    const adecuacion=await callGPT(
+      `Eres un evaluador experto de ${cfg.label}. Evalúa la memoria generada y sugiere mejoras específicas para maximizar la puntuación. Responde JSON: {"puntuacion_global":85,"criterios":[{"nombre":"Calidad científica","puntuacion":80,"comentario":"…"}],"mejoras_urgentes":["m1"],"fortalezas_detectadas":["f1"]}`,
+      `CRITERIOS DE LA CONVOCATORIA: ${cfg.criterios}\n\nMEMORIA (extracto):\n${fullMemoria.substring(0,5000)}`,apiKey,1200);
+    const adecJson=parseJSON(adecuacion,{puntuacion_global:75,criterios:[],mejoras_urgentes:[],fortalezas_detectadas:[]});
+    setMsg('adequacy',`✓ Puntuación estimada: ${adecJson.puntuacion_global}/100`,'success');
+    setAgent('adequacy','done');
+
+    // ── AGENTE 8: COHERENCIA ──────────────────────────────────────────────────
+    setAgent('coherence','running'); setGlobal(86,'Agente 8: Verificando coherencia interna…');
+    setMsg('coherence','Comprobando consistencia entre secciones…','active');
+    if(adecJson.mejoras_urgentes.length>0){
+      setMsg('coherence',`Aplicando ${adecJson.mejoras_urgentes.length} mejoras urgentes…`,'active');
+      for(const mejora of adecJson.mejoras_urgentes.slice(0,3)){
+        const secAfectada=Object.keys(seccionesGeneradas)[0];
+        const mejorado=await callGPT(
+          `Eres un editor experto. Aplica la siguiente mejora a la sección más relevante de la memoria. Mejora: "${mejora}". Idioma: ${idioma==='en'?'English':'Español'}. Devuelve solo el texto mejorado de la sección, sin explicaciones.`,
+          `SECCIÓN ACTUAL:\n${seccionesGeneradas[secAfectada]?.substring(0,2000)||''}`,apiKey,1500);
+        if(mejorado.length>100) seccionesGeneradas[secAfectada]=mejorado;
+      }
+    }
+    setMsg('coherence','✓ Coherencia verificada y ajustada','success');
+    setAgent('coherence','done');
+
+    // ── AGENTE 9: QA ──────────────────────────────────────────────────────────
+    setAgent('qa','running'); setGlobal(94,'Agente 9: Control de calidad final…');
+    setMsg('qa','Verificación final de la memoria…','active');
+    const qaResult=await callGPT(
+      `Eres el responsable de calidad de una consultora de proyectos I+D. Genera un informe ejecutivo de la memoria: puntos fuertes, aspectos a mejorar manualmente, y recomendaciones finales. Idioma: ${idioma==='en'?'English':'Español'}. Sé conciso y directo.`,
+      `PUNTUACIÓN ESTIMADA: ${adecJson.puntuacion_global}/100\nFORTALEZAS: ${adecJson.fortalezas_detectadas.join(', ')}\nCONVOCATORIA: ${cfg.label}\nSECCIONES GENERADAS: ${Object.keys(seccionesGeneradas).map(s=>SEC_LABELS[s]).join(', ')}`,apiKey,800);
+    setMsg('qa',`✓ QA completado — puntuación estimada: ${adecJson.puntuacion_global}/100`,'success');
+    setAgent('qa','done');
+
+    setGlobal(100,'✓ Pipeline completado — memoria lista');
+    resultado={secciones:seccionesGeneradas,refs:refsEncontradas,adecuacion:adecJson,qaResult,meta:{conv:convActiva,convLabel:cfg.label,titulo,entidad,area,ip,duracion,idioma,secList}};
+    document.getElementById('btnVerMemoria').style.display='block';
+
+  }catch(e){
+    showToast('Error en el pipeline: '+e.message,'error');
+    console.error(e);
+  }
+}
+
+// ─── RENDER MEMORIA ───────────────────────────────────────────────────────────
+function renderMemoria(){
+  if(!resultado)return;
+  const m=resultado.meta;
+  document.getElementById('convBadgeText').textContent=`${resultado.meta.convLabel} · ${m.idioma==='en'?'English':'Español'} · ${m.duracion} meses`;
+
+  // Score
+  const ad=resultado.adecuacion;
+  if(ad.criterios?.length>0){
+    document.getElementById('scoreSection').style.display='block';
+    const colors=['#1a6fad','#27ae60','#e67e22','#c0392b','#8e44ad'];
+    document.getElementById('scoreItems').innerHTML=
+      `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;padding-bottom:.7rem;border-bottom:1px solid #dce8f4;">
+        <span style="font-size:1.6rem;font-weight:800;color:#0a2240;">${ad.puntuacion_global}</span>
+        <div style="flex:1"><div style="font-size:.78rem;font-weight:700;color:#3a5070;margin-bottom:.25rem;">Puntuación global estimada / 100</div>
+        <div class="score-bar"><div class="score-fill" style="width:${ad.puntuacion_global}%;background:#1a6fad;"></div></div></div></div>`+
+      ad.criterios.map((c,i)=>`<div style="margin-bottom:.55rem;">
+        <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
+          <span style="font-weight:600;color:#3a5070;">${c.nombre}</span>
+          <span style="font-weight:700;color:${colors[i%colors.length]};">${c.puntuacion}/100</span>
+        </div>
+        <div class="score-bar"><div class="score-fill" style="width:${c.puntuacion}%;background:${colors[i%colors.length]};"></div></div>
+        <div style="font-size:.72rem;color:#6a80a0;margin-top:.2rem;">${c.comentario||''}</div>
+      </div>`).join('');
+  }
+
+  // Tabs y panes
+  const tabsEl=document.getElementById('resultTabs');
+  const panesEl=document.getElementById('resultPanes');
+  tabsEl.innerHTML=''; panesEl.innerHTML='';
+
+  const secOrden=resultado.meta.secList;
+  secOrden.forEach((sec,idx)=>{
+    if(!resultado.secciones[sec])return;
+    const tab=document.createElement('button');
+    tab.className='result-tab'+(idx===0?' active':'');
+    tab.textContent=SEC_LABELS[sec]||sec;
+    tab.onclick=()=>{
+      document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('pane-'+sec).classList.add('active');
+    };
+    tabsEl.appendChild(tab);
+
+    const pane=document.createElement('div');
+    pane.className='result-pane'+(idx===0?' active':'');
+    pane.id='pane-'+sec;
+    pane.innerHTML=`<div class="mem-section">
+      <div class="mem-section-title"><i class="fa-solid fa-file-lines" style="color:#1a6fad;font-size:.9rem;"></i>${SEC_LABELS[sec]||sec}</div>
+      <div class="mem-section-body">${escHtml(resultado.secciones[sec])}</div>
+    </div>`;
+    panesEl.appendChild(pane);
+  });
+
+  // QA tab
+  if(resultado.qaResult){
+    const tab=document.createElement('button');
+    tab.className='result-tab';
+    tab.innerHTML='<i class="fa-solid fa-star" style="margin-right:.3rem;color:#f39c12;"></i>Informe QA';
+    tab.onclick=()=>{
+      document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('pane-qa').classList.add('active');
+    };
+    tabsEl.appendChild(tab);
+    const pane=document.createElement('div');
+    pane.className='result-pane'; pane.id='pane-qa';
+    pane.innerHTML=`<div class="mem-section" style="border-left-color:#f39c12;background:#fffbf0;">
+      <div class="mem-section-title" style="color:#e67e22;"><i class="fa-solid fa-star" style="color:#f39c12;font-size:.9rem;"></i>Informe de calidad</div>
+      <div class="mem-section-body">${escHtml(resultado.qaResult)}</div>
+    </div>`;
+    panesEl.appendChild(pane);
+  }
+
+  // Bibliografía
+  if(resultado.refs.length>0){
+    document.getElementById('bibSection').style.display='block';
+    document.getElementById('bibList').innerHTML=resultado.refs.slice(0,20).map((r,i)=>
+      `<div style="font-size:.83rem;padding:.5rem .8rem;border-radius:8px;background:#f8fafd;border:1px solid #dce8f4;margin-bottom:.4rem;">
+        <span style="font-weight:700;color:#1a6fad;">[${i+1}]</span>
+        <span style="color:#3a5070;"> ${r.authors||''} (${r.year||'s.f.'}).</span>
+        <em style="color:#0d1f35;"> ${r.title||''}</em>.${r.doi?` <a href="https://doi.org/${r.doi}" target="_blank" style="color:#1a6fad;font-size:.8rem;">DOI</a>`:''}
+        <span class="chip" style="margin-left:.3rem;font-size:.65rem;">${r.src}</span>
+      </div>`).join('');
+  }
+}
+
+function setResultTab(pane,btn){
+  document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active'); document.getElementById('pane-'+pane).classList.add('active');
+}
+
+function escHtml(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+async function regenerar(){setStep(4);buildAgentsList();await ejecutarPipeline();}
+
+// ─── EXPORT WORD ──────────────────────────────────────────────────────────────
+async function exportarWord(){
+  if(!resultado)return;
+  const btn=document.getElementById('btnWord');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Generando…';
+  const {Document,Packer,Paragraph,TextRun,HeadingLevel,BorderStyle}=docx;
+  const m=resultado.meta;
+  const ch=[];
+  const sep=()=>new Paragraph({children:[],border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C8D8E8',space:4}},spacing:{before:200,after:200}});
+  const h1=(t)=>new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:t,bold:true,size:32,font:'Arial',color:'0A2240'})]});
+  const h2=(t)=>new Paragraph({heading:HeadingLevel.HEADING_2,children:[new TextRun({text:t,bold:true,size:24,font:'Arial',color:'1A6FAD'})]});
+  const p=(t)=>new Paragraph({children:[new TextRun({text:t,font:'Georgia',size:20})],spacing:{after:80}});
+
+  ch.push(h1(m.titulo||'Memoria de Proyecto'));
+  ch.push(new Paragraph({children:[new TextRun({text:`${m.convLabel} · ${m.entidad||''} · ${m.idioma==='en'?'English':'Español'} · ${new Date().toLocaleDateString('es-ES')}`,size:20,font:'Arial',color:'555555',italics:true})]}));
+  ch.push(sep());
+
+  resultado.meta.secList.forEach(sec=>{
+    if(!resultado.secciones[sec])return;
+    ch.push(h2(SEC_LABELS[sec]||sec));
+    resultado.secciones[sec].split('\n').forEach(line=>{
+      if(line.trim())ch.push(p(line)); else ch.push(new Paragraph({children:[]}));
+    });
+    ch.push(sep());
+  });
+
+  if(resultado.refs.length>0){
+    ch.push(h2('Referencias bibliográficas'));
+    resultado.refs.slice(0,20).forEach((r,i)=>ch.push(p(`[${i+1}] ${r.authors||''} (${r.year||'s.f.'}). ${r.title||''}.${r.doi?' DOI: '+r.doi:''}`)));
+  }
+
+  const doc2=new Document({
+    styles:{default:{document:{run:{font:'Arial',size:20}}},paragraphStyles:[
+      {id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:32,bold:true,font:'Arial',color:'0A2240'},paragraph:{spacing:{before:300,after:200},outlineLevel:0}},
+      {id:'Heading2',name:'Heading 2',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:24,bold:true,font:'Arial',color:'1A6FAD'},paragraph:{spacing:{before:240,after:120},outlineLevel:1}}
+    ]},
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:ch}]
+  });
+  const buf=await Packer.toBuffer(doc2);
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`GrantWriter_${(m.titulo||'memoria').replace(/\s+/g,'_').substring(0,30)}.docx`;
+  a.click();URL.revokeObjectURL(url);
+  btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-file-word"></i> Descargar Word';
+  showToast('Word descargado','success');
+}
+
+// ─── EXPORT PDF ───────────────────────────────────────────────────────────────
+function exportarPDF(){
+  if(!resultado)return;
+  const btn=document.getElementById('btnPDF');
+  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Generando…';
+  const m=resultado.meta;
+  let html=`<style>body{font-family:Georgia,serif;font-size:11pt;color:#0d1f35;line-height:1.8}h1{font-size:16pt;color:#0a2240;margin-bottom:6px}h2{font-size:12pt;color:#1a6fad;margin-top:22px;margin-bottom:8px;border-bottom:1px solid #c8d8e8;padding-bottom:3px}.meta{font-size:9pt;color:#6a80a0;margin-bottom:16px;font-style:italic}.sec{white-space:pre-wrap;font-size:10.5pt;margin-bottom:12px}.ref{font-size:9pt;margin-bottom:4px;color:#2d4060}</style>`;
+  html+=`<h1>${m.titulo||'Memoria de Proyecto'}</h1><div class="meta">${m.convLabel} · ${m.entidad||''} · ${new Date().toLocaleDateString('es-ES')}</div>`;
+  resultado.meta.secList.forEach(sec=>{
+    if(!resultado.secciones[sec])return;
+    html+=`<h2>${SEC_LABELS[sec]||sec}</h2><div class="sec">${resultado.secciones[sec]}</div>`;
+  });
+  if(resultado.refs.length>0){
+    html+=`<h2>Referencias bibliográficas</h2>`;
+    resultado.refs.slice(0,20).forEach((r,i)=>html+=`<div class="ref">[${i+1}] ${r.authors||''} (${r.year||'s.f.'}). <em>${r.title||''}</em>.${r.doi?' DOI: '+r.doi:''}</div>`);
+  }
+  const el=document.createElement('div');el.innerHTML=html;document.body.appendChild(el);
+  const fn=`GrantWriter_${(m.titulo||'memoria').replace(/\s+/g,'_').substring(0,30)}.pdf`;
+  html2pdf().set({margin:[15,15,15,15],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}})
+    .from(el).save().then(()=>{
+      document.body.removeChild(el);
+      btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-file-pdf"></i> Descargar PDF';
+      showToast('PDF descargado','success');
+    });
+}
+
+function copiarTodo(){
+  if(!resultado)return;
+  const m=resultado.meta;
+  let t=`${m.titulo||'MEMORIA DE PROYECTO'}\n${m.convLabel} · ${new Date().toLocaleDateString('es-ES')}\n${'═'.repeat(60)}\n\n`;
+  resultado.meta.secList.forEach(sec=>{
+    if(resultado.secciones[sec])t+=`${SEC_LABELS[sec].toUpperCase()}\n${'─'.repeat(40)}\n${resultado.secciones[sec]}\n\n`;
+  });
+  navigator.clipboard.writeText(t).then(()=>showToast('Memoria copiada al portapapeles','success'));
+}
+
+function nuevo(){
+  resultado=null;refsEncontradas=[];docFiles=[];docTextos=[];
+  convActiva=null;
+  document.querySelectorAll('.conv-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('customConvWrap').style.display='none';
+  document.getElementById('tituloProyecto').value='';document.getElementById('entidad').value='';
+  document.getElementById('area').value='';document.getElementById('ip').value='';
+  document.getElementById('descripcionProyecto').value='';document.getElementById('equipo').value='';
+  document.getElementById('instrucciones').value='';
+  document.getElementById('docFileList').innerHTML='';
+  document.getElementById('docUploadZone').classList.remove('has-file');
+  buildAgentsList();setStep(1);
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function toggleApiKey(){
+  const i=document.getElementById('apiKey'),ic=document.getElementById('eyeIcon');
+  i.type=i.type==='password'?'text':'password';
+  ic.className=i.type==='password'?'fa-regular fa-eye':'fa-regular fa-eye-slash';
+}
+let toastTimer;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.className='toast'+(type==='error'?' error':type==='success'?' success':'');
+  t.querySelector('i').className=type==='error'?'fa-solid fa-circle-xmark':type==='success'?'fa-solid fa-circle-check':'fa-solid fa-circle-info';
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Drag & drop docs
+const dz=document.getElementById('docUploadZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault();dz.classList.remove('dragover');
+  const fi=document.getElementById('docFile');
+  const dt=new DataTransfer();
+  Array.from(e.dataTransfer.files).forEach(f=>dt.items.add(f));
+  fi.files=dt.files;onDocSelected(fi);
+});
+</script>
+</body>
+</html>
