@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 message: "Si usas este software, cítalo con estos metadatos."
 title: "GrantWriter"
+abstract: "Nueve agentes de IA redactan la memoria de un proyecto de I+D+i para CDTI, AEI, Horizonte Europa, IVACE y otras convocatorias, con bibliografía real filtrada por pertinencia, marcas [COMPLETAR] en lugar de datos inventados y comprobación de citas y cifras."
 type: software
 authors:
   - family-names: "Borrás Rocher"
@@ -8,8 +9,15 @@ authors:
     affiliation: "Universidad Miguel Hernández de Elche"
     orcid: "https://orcid.org/0000-0002-5519-4573"
 doi: "10.5281/zenodo.21423319"
-version: "1.0.0"
-date-released: "2026-07-18"
+version: "2.0.0"
+date-released: "2026-09-29"
 url: "https://fborrasumh.github.io/grantwriter/"
 repository-code: "https://github.com/fborrasumh/grantwriter"
 license: MIT
+keywords:
+  - "convocatorias de I+D+i"
+  - "memorias de proyectos"
+  - "financiación de la investigación"
+  - "escritura académica"
+  - "agentes de IA"
+  - "inteligencia artificial"
