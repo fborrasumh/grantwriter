@@ -58,1076 +58,1062 @@
   };
 })();
 </script>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GrantWriter — Memorias de Proyectos con IA</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://unpkg.com/docx@8.5.0/build/index.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<title>GrantWriter · Memorias de proyectos para convocatorias de I+D+i</title>
+<meta name="description" content="Nueve agentes redactan la memoria de tu proyecto para CDTI, AEI, Horizonte Europa, IVACE y otras convocatorias, con bibliografía real filtrada por pertinencia y sin inventar datos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',system-ui,sans-serif;background:#f4f7fb;min-height:100vh;color:#0d1f35}
+:root{
+  --tinta:#0F2237; --acero:#2E4B6B; --acero-claro:#7C93AC; --gris:#5D7691;
+  --papel:#F3F6FA; --blanco:#FFFFFF; --linea:#D8E0E9; --linea-2:#E8EEF4;
+  --brasa:#E4572E; --brasa-osc:#C9441F; --brasa-suave:#FDEBE4;
+  --forjado:#0E7C6B; --forjado-suave:#E0F3EE; --aviso:#8A3617;
+  --c-ctx:#1F6FB2; --c-comp:#6B4FD8; --c-rda:#0E8C7A; --c-tema:#C98200; --c-eval:#E4572E; --c-final:#2E4B6B;
+  --sombra:0 1px 0 rgba(15,34,55,.05), 0 14px 34px -22px rgba(15,34,55,.45);
+  --sombra-alta:0 2px 0 rgba(15,34,55,.04), 0 22px 50px -24px rgba(15,34,55,.55);
+  --r:14px;
+  --display:"Bricolage Grotesque",Georgia,serif;
+  --texto:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--papel);color:var(--tinta);font-family:var(--texto);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;padding-bottom:84px}
+a{color:var(--acero)}
+:focus-visible{outline:3px solid var(--brasa);outline-offset:2px;border-radius:6px}
+.hidden{display:none!important}
+svg.i{width:1.15em;height:1.15em;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+code{font-family:var(--mono);font-size:.85em;background:var(--linea-2);padding:1px 5px;border-radius:5px}
 
-/* HEADER */
-.app-header{background:linear-gradient(160deg,#0a2240 0%,#0d3460 100%);padding:2rem 1.5rem 3.8rem;position:relative;overflow:hidden}
-.app-header::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(26,111,173,0.2) 0%,transparent 70%)}
-.app-header::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:44px;background:#f4f7fb;clip-path:ellipse(52% 100% at 50% 100%)}
-.header-badge{display:inline-flex;align-items:center;gap:.35rem;background:rgba(26,111,173,0.25);border:1px solid rgba(26,111,173,0.4);border-radius:99px;padding:.22rem .7rem;font-size:.7rem;font-weight:700;color:#7ab8e8;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.55rem}
-.header-icon{width:56px;height:56px;background:rgba(26,111,173,0.2);border:1px solid rgba(26,111,173,0.35);border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:#7ab8e8;flex-shrink:0}
+/* Barra superior */
+.topbar{position:sticky;top:0;z-index:40;background:var(--tinta);color:#EAF1F7;box-shadow:0 6px 24px -14px rgba(0,0,0,.6)}
+.tb-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.logo{background:none;border:0;color:#fff;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.03em;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:8px}
+.logo em{font-style:normal;color:var(--brasa)}
+.logo .anv{width:30px;height:30px;border-radius:9px;background:var(--brasa);display:grid;place-items:center;color:#fff}
+.stepper{flex:1;display:flex;align-items:center;justify-content:center;min-width:0}
+.sdot{display:flex;align-items:center;gap:7px;background:none;border:0;color:#8FA7BE;font:600 13px var(--texto);padding:6px;cursor:pointer;border-radius:10px;white-space:nowrap}
+.sdot:disabled{cursor:not-allowed;opacity:.45}
+.sdot .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid #3E5C7D;font-size:12px;color:#A9C0D4;transition:all .2s}
+.sdot .n svg{width:14px;height:14px}
+.sdot[data-state="done"] .n{background:var(--forjado);border-color:var(--forjado);color:#fff}
+.sdot[data-state="now"]{color:#fff}
+.sdot[data-state="now"] .n{background:var(--brasa);border-color:var(--brasa);color:#fff;box-shadow:0 0 0 4px rgba(228,87,46,.25)}
+.sdot:not(:disabled):hover{background:rgba(255,255,255,.06)}
+.sline{flex:0 1 26px;height:2px;background:#2F4A68;min-width:6px}
+.sline.on{background:var(--forjado)}
+.tb-tools{display:flex;gap:6px}
+.tb-btn{background:transparent;border:1px solid #3E5C7D;color:#C9D8E6;border-radius:9px;padding:6px 10px;font:600 13px var(--texto);cursor:pointer;display:flex;align-items:center;gap:6px}
+.tb-btn:hover{border-color:var(--brasa);color:#fff}
+.progress{height:4px;background:#1E3550}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--brasa),#F59E0B);transition:width .4s}
+@media(max-width:960px){.sdot .lbl{display:none}.sdot[data-state="now"] .lbl{display:inline}}
+@media(max-width:720px){
+  .tb-in{flex-wrap:wrap;gap:8px}
+  .stepper{order:3;flex-basis:100%;justify-content:space-between}
+  .sdot[data-state="now"] .lbl{display:none}
+  .tb-btn .lbl{display:none}
+}
 
-/* STEPS */
-.steps-bar{display:flex;align-items:center;margin:2rem auto 1.5rem;max-width:760px;padding:0 1.5rem}
-.step-item{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
-.step-circle{width:38px;height:38px;border-radius:50%;border:2px solid #c8d8e8;background:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#8aA0b8;transition:all .3s;z-index:1}
-.step-circle.active{border-color:#1a6fad;background:#1a6fad;color:#fff;box-shadow:0 0 0 4px rgba(26,111,173,0.18)}
-.step-circle.done{border-color:#1a6fad;background:#1a6fad;color:#fff}
-.step-label{font-size:.63rem;font-weight:600;color:#8aa0b8;text-align:center;white-space:nowrap;letter-spacing:.03em}
-.step-label.active{color:#1a6fad;font-weight:700}
-.step-connector{flex:1;height:2px;background:#c8d8e8;margin-bottom:22px;transition:background .3s}
-.step-connector.done{background:#1a6fad}
+/* Pantallas */
+main{max-width:1180px;margin:0 auto;padding:26px 16px 40px}
+.screen{display:none}
+.screen.on{display:block}
+@media(prefers-reduced-motion:no-preference){.screen.on{animation:rise .35s cubic-bezier(.2,.7,.3,1) both}@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}}
+.sh{display:flex;gap:18px;align-items:flex-start;margin:4px 0 22px}
+.sh-ico{width:64px;height:64px;border-radius:18px;background:var(--c,var(--brasa));color:#fff;display:grid;place-items:center;flex:none;box-shadow:0 12px 24px -14px var(--c,var(--brasa))}
+.sh-ico svg{width:32px;height:32px}
+.sh-step{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acero-claro);margin:4px 0}
+.sh h2{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.025em;line-height:1.05;margin:0 0 6px}
+.sh-lede{margin:0;color:var(--gris);font-size:16.5px;max-width:70ch}
+@media(max-width:600px){.sh-ico{width:48px;height:48px;border-radius:14px}.sh-ico svg{width:24px;height:24px}}
 
-/* CARDS */
-.card{background:#fff;border-radius:20px;padding:2rem;box-shadow:0 2px 20px rgba(10,34,64,0.08);border:1px solid #dce8f4}
-.section-title{font-family:'Source Serif 4',Georgia,serif;font-size:1.25rem;font-weight:700;color:#0a2240;margin:0 0 .2rem;letter-spacing:-.01em}
-.section-sub{font-size:.82rem;color:#6a80a0;margin:0 0 1.4rem;line-height:1.5}
-.form-label{font-size:.73rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.38rem;display:block}
-input[type="text"],input[type="password"],input[type="number"],textarea,select{width:100%;border:1.5px solid #c8d8e8;border-radius:10px;padding:.62rem .88rem;font-family:'Inter',inherit;font-size:.9rem;color:#0d1f35;background:#f8fafd;outline:none;transition:border-color .2s,box-shadow .2s}
-input:focus,textarea:focus,select:focus{border-color:#1a6fad;box-shadow:0 0 0 3px rgba(26,111,173,0.1);background:#fff}
+.card{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--r);box-shadow:var(--sombra);padding:20px;margin-bottom:18px}
+.card h3{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:-.01em;margin:0 0 4px;display:flex;align-items:center;gap:9px}
+.card h3 .num{width:26px;height:26px;border-radius:8px;background:var(--tinta);color:#fff;font:700 13px var(--mono);display:grid;place-items:center}
+.card .sub{margin:0 0 14px;color:var(--gris);font-size:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cols{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;align-items:start}
+.sticky{position:sticky;top:96px}
+@media(max-width:900px){.cols{grid-template-columns:1fr}.sticky{position:static}}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
 
-/* CONVOCATORIA CARDS */
-.conv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.6rem;margin-bottom:1.4rem}
-.conv-card{border:2px solid #dce8f4;border-radius:13px;padding:.8rem .7rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.35rem;text-align:center;background:#f8fafd;position:relative}
-.conv-card:hover{border-color:#1a6fad;background:#eef5fc;transform:translateY(-2px)}
-.conv-card.active{border-color:var(--cc,#1a6fad);background:var(--cb,#eef5fc);box-shadow:0 0 0 3px rgba(26,111,173,0.12)}
-.conv-card .cc{position:absolute;top:7px;right:7px;width:17px;height:17px;border-radius:50%;background:var(--cc,#1a6fad);color:#fff;display:none;align-items:center;justify-content:center;font-size:.58rem;font-weight:700}
-.conv-card.active .cc{display:flex}
-.conv-logo{font-size:1.5rem;line-height:1}
-.conv-name{font-size:.75rem;font-weight:700;color:#0a2240;line-height:1.25}
-.conv-sub{font-size:.65rem;color:#6a80a0;line-height:1.3}
+label,.lab{display:block;font-size:13.5px;font-weight:600;margin:0 0 6px;color:var(--acero)}
+label small,.lab small{font-weight:500;color:var(--acero-claro)}
+input[type=text],input[type=password],input[type=number],textarea,select{width:100%;padding:11px 13px;border:1.5px solid var(--linea);border-radius:10px;font-family:var(--texto);font-size:15px;color:var(--tinta);background:#fff;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--acero-claro);box-shadow:0 0 0 4px rgba(124,147,172,.18)}
+input.bad{border-color:var(--brasa);box-shadow:0 0 0 4px rgba(228,87,46,.15)}
+textarea{resize:vertical;min-height:96px;line-height:1.5}
+input::placeholder,textarea::placeholder{color:#9DB0C2}
+.field{margin-bottom:16px}
+.help{font-size:12.8px;color:var(--gris);margin:6px 0 0}
+.help b{color:var(--acero)}
 
-/* SECCIONES CHECKBOXES */
-.sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1.2rem}
-.sec-check{display:flex;align-items:center;gap:.5rem;padding:.55rem .8rem;border:1.5px solid #dce8f4;border-radius:9px;cursor:pointer;transition:all .2s;background:#f8fafd;font-size:.84rem;font-weight:500;color:#3a5070;user-select:none}
-.sec-check:hover{border-color:#1a6fad;background:#eef5fc}
-.sec-check input[type="checkbox"]{width:15px;height:15px;accent-color:#1a6fad;cursor:pointer;flex-shrink:0}
-.sec-check.checked{border-color:#1a6fad;background:#eef5fc;color:#0a2240}
+button{font-family:var(--texto);cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:11px;font-weight:600;font-size:15px;border:1.5px solid transparent;padding:11px 18px;transition:transform .08s,background .15s,border-color .15s;text-decoration:none;line-height:1.2}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--brasa);color:#fff;box-shadow:0 8px 18px -10px var(--brasa)}
+.btn-primary:hover{background:var(--brasa-osc)}
+.btn-big{font-size:17px;padding:14px 24px;border-radius:13px}
+.btn-dark{background:var(--tinta);color:#fff}
+.btn-dark:hover{background:#1c3656}
+.btn-ghost{background:#fff;border-color:var(--linea);color:var(--acero)}
+.btn-ghost:hover{border-color:var(--acero-claro);background:#F7FAFC}
+.btn-ok{background:var(--forjado);color:#fff}
+.btn-ok:hover{background:#0b6457}
+.btn-word{background:#2B579A;color:#fff}
+.btn-word:hover{background:#1e3f7a}
+.btn-sm{padding:7px 12px;font-size:13.5px;border-radius:9px}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-/* UPLOAD ZONE */
-.upload-zone{border:2px dashed #b0c8e0;border-radius:13px;padding:1.8rem 1.5rem;text-align:center;cursor:pointer;transition:all .25s;background:#f8fafd;position:relative}
-.upload-zone:hover,.upload-zone.dragover{border-color:#1a6fad;background:#eef5fc}
-.upload-zone.has-file{border-color:#1a6fad;background:#eef5fc;border-style:solid}
-.upload-zone input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:#fff;border:1.5px solid var(--linea);border-radius:999px;padding:7px 13px;font-size:13.5px;color:var(--acero);cursor:pointer;display:inline-flex;align-items:center;gap:6px;line-height:1.25;text-align:left}
+.chip:hover{border-color:var(--brasa);color:var(--brasa)}
+.chip[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
+.chip.mini-ex{font-size:12.5px;padding:4px 10px;border-style:dashed}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{border:1.5px solid var(--linea);background:#fff;border-radius:9px;padding:7px 11px;font-size:13.5px;font-weight:600;color:var(--acero)}
+.seg button:hover{border-color:var(--acero-claro)}
+.seg button[aria-pressed="true"]{background:var(--tinta);border-color:var(--tinta);color:#fff}
 
-/* AGENT PIPELINE — vertical timeline */
-.pipeline-wrap{background:#08182e;border-radius:16px;padding:1.4rem;margin-bottom:1.4rem}
-.pipeline-hdr{font-size:.7rem;font-weight:700;color:#4a6a90;letter-spacing:.08em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:.4rem}
-.agents-list{display:flex;flex-direction:column;gap:0}
-.agent-row{display:flex;align-items:flex-start;gap:.8rem;padding:.55rem 0;position:relative}
-.agent-row:not(:last-child)::after{content:'';position:absolute;left:17px;top:42px;width:2px;height:calc(100% - 8px);background:#1a2a40}
-.agent-dot{width:36px;height:36px;border-radius:50%;border:2px solid #1a2a40;background:#0f1e30;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;transition:all .4s;z-index:1}
-.agent-dot.idle{border-color:#1a2a40}
-.agent-dot.running{border-color:#1a6fad;background:rgba(26,111,173,.2);box-shadow:0 0 0 5px rgba(26,111,173,.15);animation:pulse-a 1.2s ease infinite}
-.agent-dot.done{border-color:#27ae60;background:rgba(39,174,96,.15)}
-.agent-info{flex:1;padding-top:.35rem}
-.agent-name{font-size:.78rem;font-weight:700;color:#4a6a90;line-height:1}
-.agent-name.running{color:#7ab8e8}
-.agent-name.done{color:#5ec87e}
-.agent-msg{font-size:.72rem;color:#2a4a70;margin-top:2px;font-family:'JetBrains Mono',monospace;min-height:14px}
-.agent-msg.active{color:#a0c4e8}
-.agent-msg.success{color:#5ec87e}
-.agent-msg.ref{color:#5080d0}
-.agent-phase{width:4px;border-radius:99px;align-self:stretch;flex-shrink:0;background:#1a2a40;margin-top:.35rem}
-.agent-phase.biblio{background:#1a6fad}
-.agent-phase.analisis{background:#e67e22}
-.agent-phase.redaccion{background:#27ae60}
-.agent-phase.evaluacion{background:#c0392b}
-@keyframes pulse-a{0%{box-shadow:0 0 0 0 rgba(26,111,173,.4)}70%{box-shadow:0 0 0 8px rgba(26,111,173,0)}100%{box-shadow:0 0 0 0 rgba(26,111,173,0)}}
+.meto{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.meto button{text-align:left;background:#fff;border:1.5px solid var(--linea);border-radius:12px;padding:10px 12px;color:var(--tinta)}
+.meto button b{display:block;font-size:14px}
+.meto button span{display:block;font-size:12.3px;color:var(--gris);line-height:1.35;margin-top:2px}
+.meto button:hover{border-color:var(--acero-claro)}
+.meto button[aria-pressed="true"]{border-color:var(--tinta);box-shadow:0 0 0 2px var(--tinta);background:var(--papel)}
 
-/* REFS */
-.ref-chip{display:inline-flex;align-items:center;gap:3px;background:#e8f0ff;color:#1a4fad;border-radius:4px;padding:2px 7px;font-size:.73rem;font-weight:600;margin:2px;border:1px solid #b8d0f0;cursor:help}
+.tip{display:flex;gap:12px;background:#FFF8E6;border:1px solid #F3DDA0;border-radius:12px;padding:13px 15px;font-size:14px;color:#6B4E00;margin-bottom:18px}
+.tip svg{width:22px;height:22px;color:#C98200;flex:none;margin-top:1px}
+.tip strong{color:#523B00}
+.aviso{background:var(--brasa-suave);border:1px solid #F3C7B5;border-radius:12px;padding:13px 15px;font-size:14px;color:var(--aviso);margin-bottom:16px}
+.okbox{background:var(--forjado-suave);border:1px solid #A9DCCF;border-radius:12px;padding:13px 15px;font-size:14px;color:#0B5A4E;margin-bottom:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 
-/* PROGRESS */
-.progress-track{height:6px;background:#dce8f4;border-radius:99px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#0a2240,#1a6fad);border-radius:99px;transition:width .5s ease}
+/* Inicio */
+.hero{background:var(--tinta);color:#EAF1F7;border-radius:22px;padding:40px 36px;position:relative;overflow:hidden;margin-bottom:26px;box-shadow:var(--sombra-alta)}
+.hero::before{content:"";position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(228,87,46,.55),transparent 65%)}
+.hero::after{content:"";position:absolute;left:30%;bottom:-140px;width:420px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(14,140,122,.35),transparent 65%)}
+.hero>*{position:relative;z-index:1}
+@media(max-width:600px){.hero{padding:28px 20px;border-radius:18px}}
+.eyebrow{font:600 11.5px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:#8FA7BE;margin:0 0 14px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(34px,5.4vw,58px);line-height:.98;letter-spacing:-.035em;margin:0 0 16px;max-width:17ch}
+.hero h1 em{font-style:normal;color:var(--brasa)}
+.hero p.lede{max-width:62ch;font-size:18px;color:#C3D3E2;margin:0 0 24px}
+.hero .actions .btn-ghost{background:transparent;color:#fff;border-color:#4A6787}
+.hero .actions .btn-ghost:hover{border-color:#fff}
+.draft{margin-top:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:12px 14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:14.5px}
+.sec-title{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-.02em;margin:34px 0 6px}
+.sec-sub{color:var(--gris);margin:0 0 16px}
+.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.jstop{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px;position:relative}
+.jstop .ji{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:#fff;background:var(--c);margin-bottom:10px}
+.jstop .ji svg{width:20px;height:20px}
+.jstop b{display:block;font-size:15px;margin-bottom:2px}
+.jstop span{display:block;font-size:13px;color:var(--gris);line-height:1.45}
+.jstop .jn{position:absolute;top:12px;right:14px;font:700 12px var(--mono);color:var(--acero-claro)}
+@media(max-width:900px){.journey{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.journey{grid-template-columns:1fr}}
 
-/* RESULT */
-.result-tabs{display:flex;border-bottom:2px solid #dce8f4;margin-bottom:1.4rem;overflow-x:auto;gap:0}
-.result-tab{padding:.65rem 1rem;border:none;background:transparent;font-family:inherit;font-size:.83rem;font-weight:600;color:#6a80a0;cursor:pointer;transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
-.result-tab.active{color:#1a6fad;border-bottom-color:#1a6fad}
-.result-tab:hover:not(.active){color:#0a2240}
-.result-pane{display:none}
-.result-pane.active{display:block}
-.mem-section{margin-bottom:1.6rem;padding:1.2rem 1.4rem;border-radius:13px;background:#f8fafd;border-left:4px solid #1a6fad}
-.mem-section-title{font-family:'Source Serif 4',Georgia,serif;font-size:1rem;font-weight:700;color:#0a2240;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem}
-.mem-section-body{font-size:.9rem;line-height:1.85;color:#0d1f35;white-space:pre-wrap;font-family:'Source Serif 4',Georgia,serif}
-.score-bar{height:10px;background:#dce8f4;border-radius:99px;overflow:hidden;margin-top:.3rem}
-.score-fill{height:100%;border-radius:99px;transition:width .8s ease}
+.parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.part{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--linea);border-radius:12px;padding:12px 14px}
+.part .pi{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);display:grid;place-items:center;flex:none}
+.part b{display:block;font-size:14.5px}
+.part span{display:block;font-size:12.8px;color:var(--gris);line-height:1.4}
 
-/* BUTTONS */
-.btn-primary{background:#1a6fad;color:#fff;border:none;border-radius:11px;padding:.78rem 1.6rem;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:.5rem}
-.btn-primary:hover{background:#0a5a9a}
-.btn-primary:disabled{background:#8ab0d0;cursor:not-allowed}
-.btn-secondary{background:transparent;color:#1a6fad;border:2px solid #1a6fad;border-radius:11px;padding:.7rem 1.4rem;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.5rem}
-.btn-secondary:hover{background:#eef5fc}
-.btn-dark{background:#0a2240;color:#fff;border:none;border-radius:11px;padding:.78rem 1.6rem;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;transition:background .2s;display:inline-flex;align-items:center;gap:.5rem}
-.btn-dark:hover{background:#0d3460}
-.btn-dark:disabled{background:#4a6080;cursor:not-allowed}
-.btn-ghost{background:transparent;color:#6a80a0;border:none;border-radius:9px;padding:.5rem .9rem;font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;transition:color .2s;display:inline-flex;align-items:center;gap:.4rem}
-.btn-ghost:hover{color:#0a2240}
+.examples{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.excard{background:#fff;border:1px solid var(--linea);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--sombra);position:relative;overflow:hidden;text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.excard:hover{transform:translateY(-3px);box-shadow:var(--sombra-alta)}
+.excard::before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:var(--c)}
+.excard .emo{font-size:32px;line-height:1}
+.excard .area{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acero-claro)}
+.excard b{font-family:var(--display);font-size:18px;letter-spacing:-.01em;line-height:1.15}
+.excard p{margin:0;font-size:13.5px;color:var(--gris);flex:1}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff);border-radius:999px;padding:3px 9px;align-self:flex-start}
 
-/* SPINNER */
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+/* Clave */
+.keyrow{display:flex;gap:8px}
+.keyrow input{flex:1;font-family:var(--mono);font-size:14px}
+.eye{width:46px;flex:none;border:1.5px solid var(--linea);background:#fff;border-radius:10px;color:var(--acero);display:grid;place-items:center}
+.light{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--papel);margin-top:14px;font-size:14.5px;font-weight:600}
+.light .bulbo{width:14px;height:14px;border-radius:50%;background:#B8C5D3;box-shadow:0 0 0 4px rgba(184,197,211,.3);flex:none}
+.light[data-s="ok"] .bulbo{background:#16A34A;box-shadow:0 0 0 4px rgba(22,163,74,.22)}
+.light[data-s="err"] .bulbo{background:var(--brasa);box-shadow:0 0 0 4px rgba(228,87,46,.22)}
+.light[data-s="wait"] .bulbo{background:#F59E0B;box-shadow:0 0 0 4px rgba(245,158,11,.25)}
+.olsteps{list-style:none;padding:0;margin:0;counter-reset:o;display:flex;flex-direction:column;gap:12px}
+.olsteps li{counter-increment:o;display:flex;gap:12px;font-size:14.5px;align-items:flex-start}
+.olsteps li::before{content:counter(o);width:28px;height:28px;border-radius:50%;background:var(--brasa-suave);color:var(--brasa);font:700 13px var(--mono);display:grid;place-items:center;flex:none}
 
-/* TOAST */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#0a2240;color:#fff;padding:.7rem 1.2rem;border-radius:12px;font-size:.87rem;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:9999;transform:translateY(120%);transition:transform .3s ease;display:flex;align-items:center;gap:.5rem}
-.toast.show{transform:translateY(0)}
-.toast.error{background:#c0392b}
-.toast.success{background:#1a7a3c}
+/* Acordeones */
+.acc{background:#fff;border:1px solid var(--linea);border-radius:var(--r);margin-bottom:12px;box-shadow:var(--sombra);overflow:hidden}
+.acc>summary{list-style:none;cursor:pointer;padding:15px 18px;display:flex;align-items:center;gap:12px}
+.acc>summary::-webkit-details-marker{display:none}
+.acc>summary .ai{width:36px;height:36px;border-radius:10px;background:var(--papel);color:var(--acero);display:grid;place-items:center;flex:none}
+.acc[open]>summary .ai{background:var(--tinta);color:#fff}
+.acc>summary b{font-family:var(--display);font-size:17px;display:block}
+.acc>summary small{display:block;color:var(--gris);font-size:13px}
+.acc>summary .chev{margin-left:auto;transition:transform .2s;color:var(--acero-claro)}
+.acc[open]>summary .chev{transform:rotate(180deg)}
+.acc .inner{padding:4px 18px 18px;border-top:1px solid var(--linea-2)}
+.acc .inner>*:first-child{margin-top:14px}
+.prompt-ta{font-family:var(--mono);font-size:12.3px;min-height:130px;background:#FBFDFE}
 
-.panel{display:none}.panel.active{display:block}
-.divider{border:none;border-top:1.5px solid #dce8f4;margin:1.3rem 0}
-.chip{display:inline-flex;align-items:center;gap:4px;background:#eef5fc;color:#1a6fad;border-radius:99px;padding:3px 10px;font-size:.74rem;font-weight:700;border:1px solid #b8d4f0}
+/* Resumen lateral */
+.sum h3{margin-bottom:10px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat{background:var(--papel);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font:800 24px var(--display);letter-spacing:-.02em;line-height:1.1}
+.stat span{font-size:12.3px;color:var(--gris)}
+.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:14px}
+.checks li{display:flex;gap:9px;align-items:center;color:var(--gris)}
+.checks li .ck{width:20px;height:20px;border-radius:50%;border:2px solid var(--linea);display:grid;place-items:center;flex:none}
+.checks li.on{color:var(--tinta)}
+.checks li.on .ck{background:var(--forjado);border-color:var(--forjado);color:#fff}
+.checks li .ck svg{width:12px;height:12px}
+.docname{margin-top:14px;padding:11px 13px;border-radius:11px;background:var(--tinta);color:#C3D3E2;font-size:13.5px}
+.docname b{color:#fff}
 
-@media(max-width:640px){
-  .conv-grid{grid-template-columns:repeat(2,1fr)}
-  .sec-grid{grid-template-columns:1fr}
-  .card{padding:1.2rem}
-  .step-label{font-size:.58rem}
+/* Generación */
+.agents{display:flex;flex-direction:column;gap:10px}
+.agent{background:#fff;border:1px solid var(--linea);border-radius:var(--r);box-shadow:var(--sombra);overflow:hidden;transition:border-color .2s}
+.agent-h{display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer}
+.agent .ai{width:42px;height:42px;border-radius:12px;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);display:grid;place-items:center;flex:none;transition:all .2s}
+.agent .ai svg{width:20px;height:20px}
+.agent-t{flex:1;min-width:0}
+.agent-t b{display:block;font-family:var(--display);font-size:16.5px}
+.agent-t span{display:block;font-size:13px;color:var(--gris)}
+.pill{font-size:12.5px;font-weight:700;border-radius:999px;padding:4px 10px;background:var(--linea-2);color:var(--gris);white-space:nowrap}
+.agent[data-s="run"]{border-color:#F59E0B}
+.agent[data-s="run"] .ai{background:var(--c);color:#fff;animation:pulse 1s infinite alternate}
+.agent[data-s="run"] .pill{background:#FFF1D6;color:#8A5A00}
+.agent[data-s="ok"] .ai{background:var(--c);color:#fff}
+.agent[data-s="ok"] .pill{background:var(--forjado-suave);color:var(--forjado)}
+.agent[data-s="err"]{border-color:var(--brasa)}
+.agent[data-s="err"] .pill{background:var(--brasa-suave);color:var(--brasa)}
+.agent-b{display:none;padding:4px 18px 16px 72px;font-size:14px;border-top:1px solid var(--linea-2);background:#FBFDFE}
+.agent.open .agent-b{display:block}
+@media(max-width:600px){.agent-b{padding-left:18px}}
+@keyframes pulse{from{transform:scale(1);box-shadow:0 0 0 0 rgba(228,87,46,.5)}to{transform:scale(1.06);box-shadow:0 0 0 10px rgba(228,87,46,0)}}
+.forging{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:14px;background:var(--tinta);color:#fff;margin-bottom:16px}
+.forging .spark{width:44px;height:44px;border-radius:12px;background:var(--brasa);display:grid;place-items:center;flex:none;animation:pulse 1s infinite alternate}
+.forging.done .spark{background:var(--forjado);animation:none}
+.forging.err .spark{animation:none}
+.forging b{font-family:var(--display);font-size:18px;display:block}
+.forging span{font-size:14px;color:#C3D3E2}
+.mini-list{margin:10px 0 0;padding:0;list-style:none}
+.mini-list li{padding:5px 0;border-bottom:1px solid var(--linea-2)}
+.mini-list li:last-child{border-bottom:0}
+.code{display:inline-block;font:700 11px var(--mono);border-radius:5px;padding:1px 6px;margin-right:6px;background:var(--linea-2);color:var(--acero)}
+
+/* Guía */
+.res-head{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.res-head h2{font-family:var(--display);font-weight:800;font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;margin:0;flex:1;min-width:240px;line-height:1.1}
+.doc{background:#fff;border:1px solid var(--linea);border-radius:18px;box-shadow:var(--sombra-alta);padding:40px 44px;max-width:900px;margin:0 auto}
+@media(max-width:700px){.doc{padding:22px 16px}}
+.doc-h{border-bottom:3px solid var(--tinta);padding-bottom:18px;margin-bottom:26px}
+.doc-kind{font:600 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--brasa);margin:0 0 6px}
+.doc-h h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,3.4vw,36px);letter-spacing:-.025em;line-height:1.05;margin:0 0 12px}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{font-size:12.8px;font-weight:600;background:var(--papel);color:var(--acero);border-radius:999px;padding:4px 11px}
+.dsec{margin-bottom:28px}
+.dsec h2{font-family:var(--display);font-weight:700;font-size:20px;letter-spacing:-.01em;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.dsec h2 .num{width:28px;height:28px;border-radius:8px;background:var(--tinta);color:#fff;font:700 13px var(--mono);display:grid;place-items:center;flex:none}
+.dsec p{margin:0 0 10px;max-width:75ch}
+.sublab{font-size:13px;font-weight:700;color:var(--acero-claro);margin:14px 0 6px}
+.row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--linea-2);font-size:14.5px;align-items:flex-start}
+.row:last-child{border-bottom:0}
+.row .code{margin-top:2px;flex:none}
+.code.cg{background:#E6F0FA;color:var(--c-ctx)}
+.code.ce{background:#EEEAFB;color:var(--c-comp)}
+.code.bl{background:var(--forjado-suave);color:var(--forjado)}
+.code.tm{background:var(--tinta);color:#fff}
+.row .hrs{margin-left:auto;font-size:12.5px;color:var(--gris);white-space:nowrap}
+.blk{font-weight:700;margin:16px 0 4px;display:flex;gap:8px;align-items:baseline}
+.blk small{font-weight:500;color:var(--gris)}
+.tbl-wrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-size:14px}
+table.t th{background:var(--tinta);color:#fff;text-align:left;padding:9px 11px;font-size:12.5px;font-weight:700}
+table.t td{padding:9px 11px;border-bottom:1px solid var(--linea-2);vertical-align:top}
+table.t tr:nth-child(even) td{background:#FAFCFE}
+.peso{font-weight:800;color:var(--brasa);white-space:nowrap}
+.note{margin-top:12px;padding:11px 14px;background:var(--papel);border-left:4px solid var(--forjado);border-radius:8px;font-size:14px}
+.demo-flag{background:#FFF8E6;border:1px solid #F3DDA0;color:#6B4E00;border-radius:12px;padding:11px 15px;font-size:14px;margin:0 auto 16px;max-width:900px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.demo-flag svg{color:#C98200}
+
+/* Navegación inferior */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:35;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--linea)}
+.bn-in{max-width:1180px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;gap:12px}
+.bn-hint{flex:1;text-align:center;font-size:14px;color:var(--gris)}
+.bn-hint b{color:var(--tinta)}
+@media(max-width:600px){.bn-hint{display:none}.bn-in{justify-content:space-between}}
+
+/* Modal */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(15,34,55,.55);display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow:auto}
+.modal.on{display:flex}
+.modal-box{background:#fff;border-radius:18px;max-width:760px;width:100%;box-shadow:var(--sombra-alta);overflow:hidden}
+.modal-head{display:flex;align-items:center;gap:12px;padding:16px 20px;background:var(--tinta);color:#fff}
+.modal-head h2{font-family:var(--display);font-size:22px;margin:0;flex:1}
+.modal-head button{background:transparent;border:1px solid #4A6787;color:#fff;border-radius:9px;padding:6px 10px}
+.modal-body{padding:18px 20px 22px}
+.glos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:600px){.glos{grid-template-columns:1fr}}
+.glos div{background:var(--papel);border-radius:12px;padding:12px 14px}
+.glos b{display:block;font-family:var(--display);font-size:16px;margin-bottom:2px}
+.glos span{font-size:13.8px;color:var(--acero)}
+.hist{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--linea);border-radius:12px;margin-bottom:8px}
+.hist-t{flex:1;min-width:0;cursor:pointer}
+.hist-t b{display:block;font-size:15px}
+.hist-t span{font-size:12.8px;color:var(--gris)}
+.hist:hover{border-color:var(--acero-claro)}
+.iconbtn{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--linea);background:#fff;color:var(--acero);display:grid;place-items:center;padding:0}
+.iconbtn:hover{border-color:var(--brasa);color:var(--brasa)}
+.empty{text-align:center;color:var(--gris);padding:30px 10px}
+
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);background:var(--tinta);color:#fff;padding:11px 18px;border-radius:12px;font-size:14.5px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s;z-index:70;max-width:90vw;text-align:center;box-shadow:var(--sombra-alta)}
+.toast.on{opacity:1;transform:translateX(-50%)}
+footer{max-width:1180px;margin:0 auto;padding:0 16px 30px;font-size:13px;color:#6E8299}
+footer hr{border:0;border-top:1px solid var(--linea);margin:0 0 14px}
+
+@media print{
+  body{background:#fff;padding:0}
+  .topbar,.bottomnav,.res-head,.demo-flag,.okbox,footer,.toast,.modal{display:none!important}
+  main{padding:0;max-width:none}
+  .screen{display:none!important}
+  
+  .doc{box-shadow:none;border:0;padding:0;max-width:none}
+  .dsec{break-inside:avoid-page}
+  table.t th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+/* ══ v2 ══ */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:640px){.grid3{grid-template-columns:1fr}}
+.feats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:960px){.feats{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.feats{grid-template-columns:1fr}}
+.feat{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px;border-top:4px solid var(--c)}
+.feat .pi{width:38px;height:38px;border-radius:11px;background:color-mix(in srgb,var(--c) 14%,#fff);color:var(--c);display:grid;place-items:center;margin-bottom:10px}
+.feat b{display:block;font-family:var(--display);font-size:17px;margin-bottom:3px}
+.feat span{display:block;font-size:13.5px;color:var(--gris);line-height:1.45}
+.importbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--tinta);color:#EAF1F7;border-radius:var(--r);padding:14px 16px;margin-bottom:18px}
+.importbar .pi{width:40px;height:40px;border-radius:11px;background:var(--brasa);display:grid;place-items:center;flex:none}
+.importbar b{display:block;font-size:15px}
+.importbar span{display:block;font-size:13.3px;color:#A9C0D4}
+.importbar .btn-dark{background:#fff;color:var(--tinta)}
+.importbar .btn-dark:hover{background:#EAF1F7}
+.inacc{border-top:1px solid var(--linea-2);margin-top:4px;padding-top:12px}
+.inacc>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--acero)}
+.inacc>summary::-webkit-details-marker{display:none}
+.inacc>summary .chev{margin-left:auto;transition:transform .2s;color:var(--acero-claro)}
+.inacc[open]>summary .chev{transform:rotate(180deg)}
+.rec{display:inline-block;font:700 11px var(--texto);background:var(--forjado-suave);color:var(--forjado);border-radius:999px;padding:2px 8px;vertical-align:2px;margin-left:4px}
+.checkgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:560px){.checkgrid{grid-template-columns:1fr}}
+.checkgrid label{display:flex;gap:9px;align-items:center;margin:0;padding:9px 11px;border-radius:10px;background:var(--papel);font-weight:500;color:var(--tinta);cursor:pointer;font-size:14px}
+.checkgrid input{width:18px;height:18px;accent-color:var(--forjado);margin:0}
+.checkgrid label:has(input:checked){background:var(--forjado-suave)}
+.drop{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;border:2px dashed var(--linea);border-radius:14px;padding:24px;cursor:pointer;color:var(--acero);margin:0;font-weight:500}
+.drop svg{width:30px;height:30px;color:var(--brasa)}
+.drop b{font-size:15px;color:var(--tinta)}
+.drop span{font-size:13px;color:var(--gris)}
+.drop.over,.drop:hover{border-color:var(--brasa);background:var(--brasa-suave)}
+
+
+
+/* ══ GrantWriter ══ */
+.convs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:900px){.convs{grid-template-columns:1fr 1fr}}
+.convs button{text-align:left;background:#fff;border:2px solid var(--linea);border-radius:14px;padding:12px 14px;box-shadow:var(--sombra)}
+.convs button[aria-pressed="true"]{border-color:var(--brasa);box-shadow:0 0 0 3px rgba(228,87,46,.18)}
+.convs .em{font-size:22px;display:block;margin-bottom:4px}.convs b{display:block;font-size:14.5px}.convs small{display:block;font-size:12.5px;color:var(--gris);line-height:1.4}
+.secs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(max-width:760px){.secs{grid-template-columns:1fr 1fr}}
+.secs label{display:flex;gap:8px;align-items:flex-start;background:#fff;border:1.5px solid var(--linea);border-radius:12px;padding:10px 12px;font-size:14px;cursor:pointer}
+.secs label.on{border-color:var(--forjado);background:var(--forjado-suave)}
+.secs small{display:block;color:var(--gris);font-size:12px}
+.agl{display:flex;flex-direction:column;gap:8px}
+.agr{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--linea);border-radius:12px;padding:10px 14px}
+.agr .d{width:40px;height:40px;border-radius:12px;background:var(--linea-2);display:grid;place-items:center;font-size:18px}
+.agr.run .d{background:#FFF1D6;box-shadow:0 0 0 3px rgba(245,158,11,.25)}.agr.done .d{background:var(--forjado-suave)}.agr.err .d{background:var(--brasa-suave)}
+.agr b{display:block;font-size:14.5px}.agr span{font-size:13px;color:var(--gris)}
+.agr .ph{font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--acero-claro)}
+.memsec{background:#fff;border:1px solid var(--linea);border-radius:16px;margin-bottom:14px;box-shadow:var(--sombra);overflow:hidden}
+.memsec header{display:flex;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--linea-2);flex-wrap:wrap}
+.memsec header h3{margin:0;font-family:var(--display);font-size:19px;flex:1}
+.memsec .body{padding:14px 18px;font-family:Georgia,"Times New Roman",serif;font-size:15.5px;line-height:1.7;white-space:pre-wrap}
+.memsec textarea{width:100%;min-height:260px;border:0;padding:14px 18px;font-family:Georgia,serif;font-size:15px;line-height:1.7;resize:vertical}
+mark.comp{background:#FFF1D6;border-bottom:2px solid #E9A23B;padding:0 2px;border-radius:3px}
+mark.cifra{background:rgba(228,87,46,.16);border-bottom:2px solid var(--brasa)}
+mark.citabad{background:var(--brasa);color:#fff;border-radius:3px;padding:0 3px}
+.cita{color:var(--acero-claro);font-weight:700}
+.ref{font-size:13.5px;padding:8px 0;border-bottom:1px dashed var(--linea-2)}
+.ref .n{font:800 12px var(--mono);color:var(--brasa)}
+.ref small{display:block;color:var(--gris);font-size:12.5px;margin-top:2px}
+.crit-b{margin-bottom:10px}.crit-b .h{display:flex;justify-content:space-between;font-size:13.5px;font-weight:700}
+.crit-b .t{height:8px;background:var(--linea-2);border-radius:5px;overflow:hidden;margin:4px 0}.crit-b .t i{display:block;height:100%;background:var(--acero-claro)}
+.crit-b small{color:var(--gris);font-size:12.5px}
+.ejs{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:700px){.ejs{grid-template-columns:1fr}}
+.ejs button{text-align:left;background:var(--papel);border:1.5px solid transparent;border-radius:12px;padding:11px 13px}.ejs button:hover{border-color:var(--acero-claro)}
+.ejs b{display:block;font-size:14px}.ejs small{color:var(--gris);font-size:12.5px}
+
+/* ══ AntiConvocatorIA ══ */
+/* ocho pasos: solo se muestra la etiqueta del paso actual */
+.tb-tools{flex:none}
+.stepper{overflow:hidden}
+.sdot .lbl{display:none}.sdot[data-state="now"] .lbl{display:inline}
+.stepper{justify-content:center;min-width:0}
+@media(max-width:720px){.sdot[data-state="now"] .lbl{display:none}.sline{flex:1 1 4px;min-width:2px}.sdot{padding:4px 2px}.sdot .n{width:26px;height:26px}}
+
+:root{--teal:#0E7C6B;--sello:#E4572E}
+.idea{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:960px){.idea{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.idea{grid-template-columns:1fr}}
+.idea div{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px}
+.idea b{display:block;font-family:var(--display);font-size:17px;margin-bottom:4px}
+.idea span{font-size:13.8px;color:var(--gris);line-height:1.5;display:block}
+.idea .k{font:700 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--brasa);margin-bottom:8px}
+.idea div.yes{border-color:#A9DCCF;background:var(--forjado-suave)}
+.idea div.yes .k{color:var(--forjado)}
+.quote{margin:22px 0 0;font-family:var(--display);font-size:clamp(20px,2.6vw,28px);font-weight:700;letter-spacing:-.02em;color:#fff}
+.quote span{color:var(--brasa)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:0 0 16px}
+.metric{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:14px 16px;box-shadow:var(--sombra)}
+.metric-v{font:800 34px var(--display);letter-spacing:-.03em;line-height:1.05;color:var(--tinta)}
+.metric-v.good{color:var(--forjado)} .metric-v.warn{color:var(--brasa)} .metric-v.mid{color:#B7791F}
+.metric-l{font-weight:700;font-size:14px;margin-top:4px}
+.metric-n{font-size:12.8px;color:var(--gris);margin-top:4px;line-height:1.45}
+.substeps{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+.substeps span{font-size:12.5px;font-weight:600;border-radius:999px;padding:5px 11px;background:var(--linea-2);color:var(--gris)}
+.substeps span.on{background:#FFF1D6;color:#8A5A00}
+.substeps span.done{background:var(--forjado-suave);color:var(--forjado)}
+.substeps span.fail{background:var(--brasa-suave);color:var(--brasa)}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.heat{border-collapse:separate;border-spacing:3px;font-size:13px;width:100%}
+.heat th{font-size:11.5px;color:var(--gris);font-weight:700;text-align:center;padding:4px;white-space:nowrap}
+.heat th.l,.heat td.l{text-align:left}
+.heat td{text-align:center;border-radius:6px;padding:7px 4px;min-width:34px}
+.heat td.l{padding:6px 8px 6px 0;min-width:170px;font-weight:600}
+.heat td.c0{background:#F3F6FA;color:#B8C5D3}
+.heat td.p{font-weight:800}
+.aband{display:flex;flex-direction:column;gap:6px}
+.aband-row{display:grid;grid-template-columns:minmax(140px,1.2fr) 2fr minmax(150px,1fr);gap:10px;align-items:center;font-size:13.5px}
+.aband-bar{height:10px;background:var(--linea-2);border-radius:6px;overflow:hidden}
+.aband-fill{height:100%;background:var(--brasa);border-radius:6px}
+.aband-n{color:var(--gris);font-size:12.5px}
+@media(max-width:600px){.aband-row{grid-template-columns:1fr}}
+.conv{background:#FBFDFE;border:1.5px solid var(--linea);border-radius:12px;margin-bottom:8px}
+.conv>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px;flex-wrap:wrap}
+.conv>summary::-webkit-details-marker{display:none}
+.conv-year{font:700 13px var(--mono);background:var(--tinta);color:#fff;border-radius:7px;padding:3px 9px}
+.conv-meta{font-size:13px;color:var(--gris);flex:1}
+.conv-src{font-size:12px;color:var(--acero-claro);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conv-body{padding:4px 12px 12px}
+.ing{margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.ing div{display:flex;gap:10px;font-size:13px;justify-content:space-between;padding:6px 10px;background:var(--papel);border-radius:8px}
+.ing .ok{color:var(--forjado);font-weight:600}.ing .err{color:var(--brasa);font-weight:600}.ing .warn{color:#B7791F;font-weight:600}
+.bp-scroll{overflow-x:auto}
+table.bp{border-collapse:separate;border-spacing:3px;width:100%;font-size:13.5px}
+table.bp th{font-size:12px;color:var(--gris);font-weight:700;padding:4px;text-align:center;white-space:nowrap}
+table.bp th.l{text-align:left}
+table.bp td.tema{font-weight:600;padding-right:8px;min-width:180px}
+table.bp td.cell{padding:0;min-width:64px}
+.bp-in{position:relative;border-radius:8px;display:flex;align-items:center;justify-content:center;height:40px}
+.bp-in input{width:48px;border:0;background:transparent;text-align:center;font:700 14px var(--texto);color:var(--tinta);padding:6px 0}
+.bp-in input:focus{box-shadow:none;background:rgba(255,255,255,.7);border-radius:6px}
+.bp-in.dark input{color:#fff}
+.bp-in.sel{outline:2.5px solid var(--brasa);outline-offset:-2px}
+.bp-hits{position:absolute;top:-7px;right:-5px;background:var(--brasa);color:#fff;border-radius:999px;font:700 10.5px var(--texto);padding:1px 6px}
+.bp-peso{width:64px!important;padding:8px!important;text-align:center;font-weight:700}
+.deuda{display:inline-block;height:8px;border-radius:4px;background:var(--brasa);vertical-align:1px;margin-right:8px}
+.deuda-0{background:var(--linea)}
+.rowsum{font-size:11.5px;color:var(--gris);text-align:center}
+.rowsum.bad{color:var(--brasa);font-weight:700}
+.legend{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--gris);margin-top:10px}
+.legend-bar{width:90px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(14,124,107,.05),rgba(14,124,107,.8))}
+.acta{background:var(--tinta);color:#EAF1F7;border-radius:18px;padding:22px;margin-bottom:16px;box-shadow:var(--sombra-alta);position:relative;overflow:hidden}
+.acta::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(228,87,46,.35),transparent 65%)}
+.acta>*{position:relative;z-index:1}
+.acta h3{font-family:var(--display);font-size:22px;margin:0}
+.acta .sub{font-size:13px;color:#A9C0D4;margin:2px 0 14px}
+.acta dl{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;margin:0;font-size:14px}
+.acta dt{color:#8FA7BE;font-weight:600}
+.acta dd{margin:0;word-break:break-all}
+.acta code{background:#1B3350;color:#9FE3D4;font-size:12.5px}
+@media(max-width:600px){.acta dl{grid-template-columns:1fr}}
+.intentos{margin-top:16px;display:flex;flex-direction:column;gap:6px}
+.intento{display:grid;grid-template-columns:78px 1fr 52px;gap:10px;align-items:center;font-size:12.5px}
+.intento .track{position:relative;height:10px;background:#1E3550;border-radius:6px}
+.intento .fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.intento .lim{position:absolute;top:-4px;bottom:-4px;width:2px;background:#F5BF4F}
+.intento .exp{position:absolute;top:-4px;bottom:-4px;width:2px;background:#8FA7BE}
+.intento .v{text-align:right;font-weight:700}
+.tagx{display:inline-block;font-size:11.5px;font-weight:700;border-radius:999px;padding:2px 8px;background:var(--linea-2);color:var(--acero);margin:1px 2px}
+.tagx.t{background:var(--forjado-suave);color:var(--forjado)}
+.tagx.a{background:var(--brasa-suave);color:var(--brasa)}
+.paper{background:#fff;border:1px solid var(--linea);border-radius:18px;box-shadow:var(--sombra-alta);padding:34px 38px;max-width:880px;margin:0 auto}
+@media(max-width:700px){.paper{padding:20px 16px}}
+.paper-head{border-bottom:3px solid var(--tinta);padding-bottom:14px;margin-bottom:16px}
+.paper-head h3{font-family:var(--display);font-size:28px;margin:0 0 4px;letter-spacing:-.02em}
+.paper-head .pm{font-size:13.5px;color:var(--gris)}
+.q{padding:14px 0;border-bottom:1px solid var(--linea-2)}
+.q:last-child{border-bottom:0}
+.q-top{display:flex;gap:10px}
+.q-n{font:800 16px var(--display);flex:none;min-width:24px}
+.q-text{white-space:pre-wrap;flex:1}
+.q-pts{flex:none;font-size:12.5px;color:var(--gris);white-space:nowrap}
+.opts{margin:8px 0 0 34px;display:flex;flex-direction:column;gap:4px;font-size:14.5px}
+.opts .ok{color:var(--forjado);font-weight:700}
+.q-meta{margin:10px 0 0 34px}
+.variantes{margin:10px 0 0 34px;background:var(--papel);border-radius:10px;padding:10px 12px;font-size:13.5px}
+.variantes .vt{font-weight:700;color:var(--acero);margin-bottom:4px;font-size:12.5px}
+.variantes .vi{padding:5px 0;border-top:1px dashed var(--linea)}
+.variantes .vi:first-of-type{border-top:0}
+.crit{margin:8px 0 0 34px;font-size:13.5px;border-left:3px solid var(--forjado);padding:6px 10px;background:var(--forjado-suave);border-radius:0 8px 8px 0}
+.carta{background:#fff;border:1px solid var(--linea);border-radius:18px;box-shadow:var(--sombra-alta);padding:34px 40px;max-width:760px;margin:0 auto;font-size:16.5px;line-height:1.65}
+.carta p{margin:0 0 14px}
+@media(max-width:700px){.carta{padding:22px 18px}}
+.pubbox{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;justify-content:center}
+.stale{background:#FFF8E6;border:1px solid #F3DDA0;color:#6B4E00;border-radius:12px;padding:11px 15px;font-size:14px;margin-bottom:14px}
+.verify-ok{background:var(--forjado-suave);color:#0B5A4E;border-radius:12px;padding:12px 14px;font-weight:600}
+.verify-ko{background:var(--brasa-suave);color:var(--aviso);border-radius:12px;padding:12px 14px;font-weight:600}
+.keyhide{font-family:var(--mono);letter-spacing:.1em}
+@media print{
+  .noprint,.acta .intentos{display:none!important}
+  .screen.on{display:block!important}
+  .paper,.carta{box-shadow:none;border:0;padding:0}
 }
 </style>
 </head>
 <body>
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m10 8 6 4-6 4z"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8M13 12h8M13 18h8"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6M10 22h4"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8M10 12h4"/></symbol>
+  <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4M5 17v4M3 19h4"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></symbol>
+  <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+  <symbol id="i-form" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-tablet" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 18h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M6 14l1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+  <symbol id="i-print" viewBox="0 0 24 24"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/></symbol>
+</svg>
 
-<!-- HEADER -->
-<header class="app-header">
-  <div style="max-width:760px;margin:0 auto;">
-    <div class="header-badge"><i class="fa-solid fa-trophy"></i> Grant Writing System · 9 Agentes IA</div>
-    <div style="display:flex;align-items:center;gap:1rem;margin-top:.3rem;">
-      <div class="header-icon"><i class="fa-solid fa-file-contract"></i></div>
-      <div>
-        <h1 style="font-family:'Source Serif 4',Georgia,serif;font-size:1.85rem;font-weight:700;color:#fff;margin:0;letter-spacing:-.02em;">GrantWriter</h1>
-        <p style="color:#6090b8;font-size:.83rem;margin:.15rem 0 0;">Memorias de proyectos para CDTI · AEI · Horizonte Europa · IVACE y más</p>
-      </div>
-    </div>
+<div class="topbar">
+  <div class="tb-in">
+    <button class="logo" id="goHome" type="button" aria-label="Ir al inicio"><span class="anv"><svg class="i"><use href="#i-doc"/></svg></span><span>Grant<em>Writer</em></span></button>
+    <nav class="stepper" id="stepper" aria-label="Pasos"></nav>
+    <div class="tb-tools"><button class="tb-btn" id="btnHelp" type="button"><svg class="i"><use href="#i-help"/></svg><span class="lbl">Ayuda</span></button></div>
   </div>
-</header>
-
-<!-- STEPS -->
-<div class="steps-bar">
-  <div class="step-item">
-    <div class="step-circle active" id="sc1"><i class="fa-solid fa-building-columns" style="font-size:.72rem;"></i></div>
-    <span class="step-label active" id="sl1">Convocatoria</span>
-  </div>
-  <div class="step-connector" id="con1"></div>
-  <div class="step-item">
-    <div class="step-circle" id="sc2"><i class="fa-solid fa-flask" style="font-size:.72rem;"></i></div>
-    <span class="step-label" id="sl2">Proyecto</span>
-  </div>
-  <div class="step-connector" id="con2"></div>
-  <div class="step-item">
-    <div class="step-circle" id="sc3"><i class="fa-solid fa-sliders" style="font-size:.72rem;"></i></div>
-    <span class="step-label" id="sl3">Secciones</span>
-  </div>
-  <div class="step-connector" id="con3"></div>
-  <div class="step-item">
-    <div class="step-circle" id="sc4"><i class="fa-solid fa-robot" style="font-size:.72rem;"></i></div>
-    <span class="step-label" id="sl4">Agentes</span>
-  </div>
-  <div class="step-connector" id="con4"></div>
-  <div class="step-item">
-    <div class="step-circle" id="sc5"><i class="fa-solid fa-file-lines" style="font-size:.72rem;"></i></div>
-    <span class="step-label" id="sl5">Memoria</span>
-  </div>
+  <div class="progress"><span id="progBar"></span></div>
 </div>
 
-<main style="max-width:760px;margin:0 auto;padding:0 1.5rem 3rem;">
-
-  <!-- ── PANEL 1: CONVOCATORIA ── -->
-  <div class="panel active" id="panel1">
-    <div class="card">
-      <div class="section-title">Selecciona la convocatoria</div>
-      <p class="section-sub">El pipeline adaptará el lenguaje, criterios de evaluación e idioma a cada organismo.</p>
-
-      <div class="conv-grid" id="convGrid">
-        <div class="conv-card" onclick="selConv(this,'cdti')" style="--cc:#e67e22;--cb:#fff8f2;" data-conv="cdti">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">🏭</div>
-          <div class="conv-name">CDTI</div>
-          <div class="conv-sub">Proyectos I+D+i empresariales</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'aei')" style="--cc:#c0392b;--cb:#fff5f5;" data-conv="aei">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">🔬</div>
-          <div class="conv-name">AEI</div>
-          <div class="conv-sub">Proyectos Generación del Conocimiento</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'horizonte')" style="--cc:#1a6fad;--cb:#eef5fc;" data-conv="horizonte">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">🇪🇺</div>
-          <div class="conv-name">Horizonte Europa</div>
-          <div class="conv-sub">ERC · MSCA · Pilares 1-3</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'ivace')" style="--cc:#8e44ad;--cb:#f9f0ff;" data-conv="ivace">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">🌊</div>
-          <div class="conv-name">IVACE</div>
-          <div class="conv-sub">Comunitat Valenciana</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'torres_quevedo')" style="--cc:#27ae60;--cb:#f0fff4;" data-conv="torres_quevedo">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">👨‍🔬</div>
-          <div class="conv-name">Torres Quevedo</div>
-          <div class="conv-sub">Contratos investigadores en empresa</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'retos')" style="--cc:#16a085;--cb:#f0fffe;" data-conv="retos">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">🎯</div>
-          <div class="conv-name">Retos Colaboración</div>
-          <div class="conv-sub">AEI · Universidad + empresa</div>
-        </div>
-        <div class="conv-card" onclick="selConv(this,'personalizado')" style="--cc:#1a6fad;--cb:#eef5fc;" data-conv="personalizado" id="cardPersonalizado">
-          <div class="cc"><i class="fa-solid fa-check"></i></div>
-          <div class="conv-logo">⚙️</div>
-          <div class="conv-name">Otra / Libre</div>
-          <div class="conv-sub">Define tus propios criterios</div>
-        </div>
-      </div>
-
-      <!-- Custom convocatoria -->
-      <div id="customConvWrap" style="display:none;margin-bottom:1.2rem;">
-        <label class="form-label">Nombre y criterios de la convocatoria</label>
-        <textarea id="customConvDesc" rows="3" placeholder="Ej. Convocatoria PRUAB 2025 — Proyectos de innovación universitaria. Criterios: originalidad, viabilidad, impacto social, presupuesto máximo 150.000€…"></textarea>
-      </div>
-
-      <div style="margin-bottom:1.4rem;">
-        <label class="form-label">Idioma de la memoria</label>
-        <select id="idiomaMemoria">
-          <option value="auto">Automático según convocatoria</option>
-          <option value="es">Español</option>
-          <option value="en">English</option>
-        </select>
-      </div>
-
-      <div style="margin-bottom:1.4rem;">
-        <label class="form-label">Clave API OpenAI</label>
-        <div style="position:relative;">
-          <input type="password" id="apiKey" placeholder="sk-..." style="padding-right:2.8rem;">
-          <button onclick="toggleApiKey()" style="position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#6a80a0;font-size:.9rem;">
-            <i class="fa-regular fa-eye" id="eyeIcon"></i>
-          </button>
-        </div>
-        <p style="font-size:.72rem;color:#6a80a0;margin:.35rem 0 0;display:flex;align-items:center;gap:.3rem;">
-          <i class="fa-solid fa-lock" style="font-size:.65rem;"></i> Guardada localmente, nunca se comparte.
-        </p>
-      </div>
-
-      <button class="btn-primary" onclick="irPaso2()" style="width:100%;">
-        Siguiente — Describir el proyecto <i class="fa-solid fa-arrow-right"></i>
-      </button>
+<main id="app">
+<!-- ═════ 0 · INICIO ═════ -->
+<section class="screen" data-step="0">
+  <div class="hero">
+    <p class="eyebrow">Memorias de proyectos de I+D+i · CDTI · AEI · Horizonte Europa · IVACE y más · Universidad Miguel Hernández de Elche</p>
+    <h1>La memoria de tu proyecto, <em>sin inventarse nada</em></h1>
+    <p class="lede">Describe tu proyecto y elige la convocatoria. Nueve agentes buscan bibliografía real, se quedan solo con la pertinente, plantean la estrategia según los criterios de evaluación y redactan cada sección. Lo que no les hayas contado lo dejan marcado para que lo completes tú.</p>
+    <div class="actions">
+      <button class="btn btn-primary btn-big" id="btnStart" type="button"><svg class="i"><use href="#i-play"/></svg>Preparar una memoria</button>
+      <button class="btn btn-ghost btn-big" id="btnDemo" type="button"><svg class="i"><use href="#i-eye"/></svg>Ver una memoria de ejemplo</button>
     </div>
+    <div class="draft hidden" id="draftBox"><svg class="i"><use href="#i-save"/></svg><span id="draftTxt" style="flex:1"></span><button class="btn btn-primary btn-sm" id="btnDraftGo" type="button">Recuperarla</button><button class="btn btn-ghost btn-sm" id="btnDraftNo" type="button">Descartar</button></div>
+    <p class="quote">Un borrador sólido en minutos; <span>la firma y los datos, tuyos.</span></p>
   </div>
-
-  <!-- ── PANEL 2: PROYECTO ── -->
-  <div class="panel" id="panel2">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-        <div class="section-title">Describe el proyecto</div>
-        <button class="btn-ghost" onclick="irPaso1()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-      </div>
-      <p class="section-sub">Cuanta más información aportes, mejor será la memoria generada.</p>
-
-      <div style="margin-bottom:1.1rem;">
-        <label class="form-label">Título del proyecto</label>
-        <input type="text" id="tituloProyecto" placeholder="Título completo o provisional del proyecto">
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;">
-        <div>
-          <label class="form-label">Entidad solicitante</label>
-          <input type="text" id="entidad" placeholder="Ej. Universidad Miguel Hernández / Empresa SL">
-        </div>
-        <div>
-          <label class="form-label">Área temática / sector</label>
-          <input type="text" id="area" placeholder="Ej. Biotecnología, IA aplicada, Agroalimentación…">
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.1rem;">
-        <div>
-          <label class="form-label">Investigador/a principal</label>
-          <input type="text" id="ip" placeholder="Nombre completo">
-        </div>
-        <div>
-          <label class="form-label">Duración (meses)</label>
-          <input type="number" id="duracion" value="36" min="6" max="60">
-        </div>
-      </div>
-
-      <div style="margin-bottom:1.1rem;">
-        <label class="form-label">Descripción del proyecto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(idea principal, problema que resuelve, innovación)</span></label>
-        <textarea id="descripcionProyecto" rows="6" placeholder="Describe brevemente la idea central del proyecto: qué problema resuelve, cuál es la innovación o novedad científica, cuáles son los objetivos principales, y qué resultados esperas conseguir…"></textarea>
-      </div>
-
-      <div style="margin-bottom:1.1rem;">
-        <label class="form-label">Capacidades del equipo investigador</label>
-        <textarea id="equipo" rows="3" placeholder="Experiencia previa relevante, publicaciones destacadas, proyectos previos, infraestructura disponible…"></textarea>
-      </div>
-
-      <hr class="divider">
-
-      <!-- Documentos previos -->
-      <div style="margin-bottom:1.1rem;">
-        <label class="form-label">Documentos de contexto <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(opcional — artículos, memorias previas, informes…)</span></label>
-        <div class="upload-zone" id="docUploadZone">
-          <input type="file" id="docFile" accept=".pdf,.docx,.doc,.txt" onchange="onDocSelected(this)" multiple>
-          <i class="fa-solid fa-file-arrow-up" style="font-size:1.8rem;color:#a0b8d0;display:block;margin-bottom:.6rem;"></i>
-          <p style="font-weight:700;color:#1a6fad;margin:0 0 .2rem;font-size:.88rem;">Arrastra documentos de contexto</p>
-          <p style="font-size:.76rem;color:#6a80a0;margin:0;">PDF, Word o TXT · se extraerá el texto automáticamente</p>
-        </div>
-        <div id="docFileList" style="margin-top:.6rem;display:flex;flex-wrap:wrap;gap:.4rem;"></div>
-      </div>
-
-      <button class="btn-primary" onclick="irPaso3()" style="width:100%;">
-        Siguiente — Seleccionar secciones <i class="fa-solid fa-arrow-right"></i>
-      </button>
-    </div>
+  <h2 class="sec-title">Los nueve agentes</h2>
+  <div class="journey" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))">
+    <div class="jstop" style="--c:#1F6FB2"><span class="jn">1-3</span><div class="ji"><svg class="i"><use href="#i-book"/></svg></div><b>Contexto y bibliografía</b><span>Extraen lo esencial del proyecto, buscan en seis bases científicas, descartan lo que no viene al caso y redactan el estado del arte.</span></div>
+    <div class="jstop" style="--c:#6B4FD8"><span class="jn">4-6</span><div class="ji"><svg class="i"><use href="#i-pencil"/></svg></div><b>Estrategia y redacción</b><span>Deciden el enfoque según los criterios de la convocatoria, redactan cada sección y refuerzan el impacto.</span></div>
+    <div class="jstop" style="--c:#E4572E"><span class="jn">7-9</span><div class="ji"><svg class="i"><use href="#i-scale"/></svg></div><b>Evaluación y ajuste</b><span>Valoran la memoria con los criterios, aplican las mejoras en la sección que toca y hacen el control de calidad.</span></div>
   </div>
-
-  <!-- ── PANEL 3: SECCIONES ── -->
-  <div class="panel" id="panel3">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.8rem;">
-        <div class="section-title">Secciones de la memoria</div>
-        <button class="btn-ghost" onclick="irPaso2()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-      </div>
-      <p class="section-sub">Selecciona las secciones que deseas incluir. Los agentes generarán cada una por separado.</p>
-
-      <div class="sec-grid" id="secGrid">
-        <label class="sec-check checked"><input type="checkbox" checked value="resumen" onchange="updateSec(this)"> Resumen ejecutivo</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="introduccion" onchange="updateSec(this)"> Introducción y antecedentes</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="estado_arte" onchange="updateSec(this)"> Estado del arte</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="objetivos" onchange="updateSec(this)"> Objetivos (general y específicos)</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="metodologia" onchange="updateSec(this)"> Metodología y plan de trabajo</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="innovacion" onchange="updateSec(this)"> Innovación y novedad científica</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="impacto" onchange="updateSec(this)"> Impacto y transferencia</label>
-        <label class="sec-check checked"><input type="checkbox" checked value="equipo" onchange="updateSec(this)"> Equipo investigador</label>
-        <label class="sec-check"><input type="checkbox" value="riesgos" onchange="updateSec(this)"> Análisis de riesgos</label>
-        <label class="sec-check"><input type="checkbox" value="presupuesto" onchange="updateSec(this)"> Presupuesto orientativo</label>
-        <label class="sec-check"><input type="checkbox" value="diseminacion" onchange="updateSec(this)"> Plan de diseminación</label>
-        <label class="sec-check"><input type="checkbox" value="etica" onchange="updateSec(this)"> Consideraciones éticas</label>
-      </div>
-
-      <hr class="divider">
-
-      <div style="margin-bottom:1.4rem;">
-        <label class="form-label">Instrucciones adicionales para los agentes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#6a80a0;">(opcional)</span></label>
-        <textarea id="instrucciones" rows="3" placeholder="Ej. Enfatizar el impacto en el sector agroalimentario valenciano. Evitar tecnicismos excesivos en el resumen ejecutivo. Presupuesto máximo 250.000€."></textarea>
-      </div>
-
-      <button class="btn-primary" onclick="irPaso4()" style="width:100%;">
-        <i class="fa-solid fa-robot"></i> Lanzar pipeline de 9 agentes
-      </button>
-    </div>
+  <h2 class="sec-title">Tres garantías</h2>
+  <div class="idea" style="grid-template-columns:repeat(3,1fr)">
+    <div><p class="k">Nada inventado</p><b>[COMPLETAR] donde falten datos</b><span>Importes, socios, publicaciones, indicadores o TRL que no hayas aportado quedan marcados, no rellenados.</span></div>
+    <div><p class="k">Bibliografía real</p><b>Solo lo pertinente</b><span>Las referencias salen de bases científicas y un agente lee sus resúmenes para quedarse con las que sirven al proyecto.</span></div>
+    <div><p class="k">Comprobado</p><b>Citas y cifras revisadas</b><span>La app marca las citas que no existen y las cifras que no aparecen en lo que le diste, para que las verifiques.</span></div>
   </div>
+</section>
 
-  <!-- ── PANEL 4: PIPELINE ── -->
-  <div class="panel" id="panel4">
+<!-- ═════ 1 · CONVOCATORIA ═════ -->
+<section class="screen" data-step="1">
+  <header class="sh" style="--c:#1F6FB2"><div class="sh-ico"><svg class="i"><use href="#i-target"/></svg></div>
+    <div><p class="sh-step">Paso 1 de 5</p><h2>La convocatoria</h2><p class="sh-lede">El tono, el idioma y los criterios de evaluación se adaptan al organismo. Los criterios son orientativos: comprueba siempre las bases oficiales de la convocatoria del año.</p></div></header>
+  <div class="convs" id="convs"></div>
+  <div class="cols" style="margin-top:14px">
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;">
-        <div class="section-title">Pipeline multiagente</div>
-        <button class="btn-ghost" onclick="irPaso3()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-      </div>
-
-      <div class="pipeline-wrap">
-        <div class="pipeline-hdr"><i class="fa-solid fa-circle-nodes"></i> 9 agentes especializados</div>
-        <div class="agents-list" id="agentsList"></div>
-      </div>
-
-      <div style="margin-bottom:1.2rem;">
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#3a5070;margin-bottom:.4rem;">
-          <span id="globalStatus">Iniciando pipeline…</span>
-          <span id="globalPct">0%</span>
-        </div>
-        <div class="progress-track"><div class="progress-fill" id="globalBar" style="width:0%"></div></div>
-      </div>
-
-      <!-- Referencias encontradas -->
-      <div id="refsSection" style="display:none;margin-bottom:1.2rem;">
-        <label class="form-label" style="margin-bottom:.5rem;">Referencias encontradas <span id="refsCount" class="chip"></span></label>
-        <div id="refsList" style="display:flex;flex-wrap:wrap;gap:.35rem;"></div>
-      </div>
-
-      <button class="btn-primary" id="btnVerMemoria" onclick="irPaso5()" style="display:none;width:100%;">
-        <i class="fa-solid fa-file-lines"></i> Ver memoria completa
-      </button>
+      <h3><span class="num">1</span>Criterios de evaluación</h3>
+      <p class="sub">Se rellenan al elegir la convocatoria. Si tienes las bases, pega aquí sus criterios reales: es lo que más mejora el resultado.</p>
+      <div class="field"><label for="convNombre">Nombre de la convocatoria</label><input type="text" id="convNombre"></div>
+      <div class="field" style="margin:0"><label for="convCrit">Criterios</label><textarea id="convCrit" style="min-height:90px"></textarea></div>
+      <div class="field" style="margin:12px 0 0"><label for="idioma">Idioma de la memoria</label><select id="idioma"><option value="es">Español</option><option value="en">English</option><option value="ca">Català / Valencià</option></select></div>
     </div>
+    <aside class="card sticky">
+      <h3><svg class="i"><use href="#i-key"/></svg>Clave de OpenAI</h3>
+      <div class="keyrow"><input type="password" id="apiKey" placeholder="sk-proj-…" autocomplete="off" spellcheck="false"><button class="eye" id="btnEye" type="button" aria-label="Mostrar u ocultar"><svg class="i"><use href="#i-eye"/></svg></button></div>
+      <div class="field" style="margin-top:10px"><label for="model">Modelo</label><select id="model"><option value="gpt-6-luna">gpt-6-luna (recomendado)</option><option value="gpt-4.1-mini">gpt-4.1-mini</option><option value="gpt-4o-mini">gpt-4o-mini</option><option value="gpt-4.1">gpt-4.1</option></select></div>
+      <p class="help">Se guarda solo en este navegador; es la misma clave del resto de herramientas del catálogo. Una memoria de ocho secciones hace unas 16 consultas y cuesta céntimos.</p>
+    </aside>
   </div>
+</section>
 
-  <!-- ── PANEL 5: MEMORIA ── -->
-  <div class="panel" id="panel5">
+<!-- ═════ 2 · PROYECTO ═════ -->
+<section class="screen" data-step="2">
+  <header class="sh" style="--c:#6B4FD8"><div class="sh-ico"><svg class="i"><use href="#i-pencil"/></svg></div>
+    <div><p class="sh-step">Paso 2 de 5</p><h2>El proyecto</h2><p class="sh-lede">Cuanto más concreto seas, menos tendrás que completar después. Los datos que no des (importes, socios, cifras) no se inventarán.</p></div></header>
+  <div class="card"><p class="sublab" style="margin-top:0">¿Quieres probar? Carga un proyecto de ejemplo</p><div class="ejs" id="ejs"></div></div>
+  <div class="cols">
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;">
-        <div class="section-title">Memoria generada</div>
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
-          <button class="btn-ghost" onclick="irPaso4()"><i class="fa-solid fa-arrow-left"></i> Atrás</button>
-          <button class="btn-secondary" onclick="regenerar()"><i class="fa-solid fa-rotate-right"></i> Regenerar</button>
-        </div>
+      <div class="grid2">
+        <div class="field"><label for="titulo">Título del proyecto</label><input type="text" id="titulo"></div>
+        <div class="field"><label for="entidad">Entidad solicitante</label><input type="text" id="entidad"></div>
+        <div class="field"><label for="area">Área o sector</label><input type="text" id="area"></div>
+        <div class="field"><label for="ip">Investigador/a principal</label><input type="text" id="ip"></div>
+        <div class="field"><label for="duracion">Duración (meses)</label><input type="number" id="duracion" min="6" max="72" value="36"></div>
+        <div class="field"><label for="presupuesto">Presupuesto solicitado <small>(opcional)</small></label><input type="text" id="presupuesto" placeholder="180.000 €"></div>
       </div>
-
-      <!-- Conv badge -->
-      <div id="convBadge" style="background:#eef5fc;border-radius:9px;padding:.55rem 1rem;margin-bottom:1.2rem;font-size:.83rem;color:#0a2240;display:flex;align-items:center;gap:.5rem;font-weight:700;">
-        <i class="fa-solid fa-building-columns"></i><span id="convBadgeText"></span>
-      </div>
-
-      <!-- Score evaluación -->
-      <div id="scoreSection" style="margin-bottom:1.4rem;padding:1rem 1.2rem;background:#f8fafd;border-radius:12px;border:1px solid #dce8f4;display:none;">
-        <div style="font-size:.75rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.8rem;">Evaluación del agente de calidad</div>
-        <div id="scoreItems"></div>
-      </div>
-
-      <!-- Result tabs -->
-      <div class="result-tabs" id="resultTabs"></div>
-      <div id="resultPanes"></div>
-
-      <!-- Bibliografía integrada -->
-      <div id="bibSection" style="display:none;margin-bottom:1.2rem;">
-        <div style="font-size:.75rem;font-weight:700;color:#3a5070;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.6rem;">Referencias bibliográficas integradas</div>
-        <div id="bibList"></div>
-      </div>
-
-      <!-- Export -->
-      <div style="border-top:1.5px solid #dce8f4;padding-top:1.2rem;margin-top:1.5rem;display:flex;gap:.8rem;flex-wrap:wrap;">
-        <button class="btn-primary" onclick="exportarWord()" id="btnWord"><i class="fa-solid fa-file-word"></i> Descargar Word</button>
-        <button class="btn-dark" onclick="exportarPDF()" id="btnPDF"><i class="fa-solid fa-file-pdf"></i> Descargar PDF</button>
-        <button class="btn-ghost" onclick="copiarTodo()"><i class="fa-regular fa-copy"></i> Copiar texto</button>
-      </div>
+      <div class="field"><label for="desc">El proyecto: problema, idea, qué es nuevo y qué harás</label><textarea id="desc" style="min-height:170px" placeholder="Qué problema resuelve, por qué importa, qué propones, qué tiene de nuevo frente a lo que existe, cómo lo vas a hacer y qué resultados esperas."></textarea></div>
+      <div class="field"><label for="equipo">El equipo: quién, qué experiencia, qué ha publicado o desarrollado</label><textarea id="equipo" style="min-height:90px"></textarea></div>
+      <div class="field" style="margin:0"><label for="datos">Datos que ya tienes <small>(opcional: resultados previos, cifras, socios, presupuesto desglosado)</small></label><textarea id="datos" style="min-height:80px"></textarea></div>
     </div>
-    <div style="text-align:center;margin-top:1.2rem;">
-      <button class="btn-ghost" onclick="nuevo()"><i class="fa-solid fa-plus"></i> Nueva memoria</button>
-    </div>
+    <aside class="card sticky">
+      <h3><svg class="i"><use href="#i-upload"/></svg>Documentos de apoyo</h3>
+      <p class="sub">Memorias anteriores, artículos del grupo, informes. Se lee el texto en tu navegador.</p>
+      <label class="drop" id="drop" tabindex="0"><svg class="i"><use href="#i-upload"/></svg><b>Arrastra aquí</b><span>PDF, Word o texto</span><input type="file" id="fileIn" multiple accept=".pdf,.docx,.txt,.md" hidden></label>
+      <div id="files" style="margin-top:8px"></div>
+    </aside>
   </div>
+</section>
 
+<!-- ═════ 3 · SECCIONES ═════ -->
+<section class="screen" data-step="3">
+  <header class="sh" style="--c:#C98200"><div class="sh-ico"><svg class="i"><use href="#i-grid"/></svg></div>
+    <div><p class="sh-step">Paso 3 de 5</p><h2>Las secciones</h2><p class="sh-lede">Elige qué partes de la memoria quieres. Cada una se redacta por separado; luego podrás editarlas o rehacerlas una a una.</p></div></header>
+  <div class="card"><div class="secs" id="secs"></div><div class="actions" style="margin-top:10px"><button class="btn btn-ghost btn-sm" id="secTodas" type="button">Todas</button><button class="btn btn-ghost btn-sm" id="secBasicas" type="button">Las básicas</button></div></div>
+  <div class="card"><div class="field" style="margin:0"><label for="instr">Instrucciones para los agentes <small>(opcional)</small></label><textarea id="instr" style="min-height:70px" placeholder="Extensión máxima de 2 páginas por sección; enfatizar la colaboración con el hospital; evitar tecnicismos en el resumen…"></textarea></div></div>
+</section>
+
+<!-- ═════ 4 · REDACCIÓN ═════ -->
+<section class="screen" data-step="4">
+  <header class="sh" style="--c:#E4572E"><div class="sh-ico"><svg class="i"><use href="#i-sparkles"/></svg></div>
+    <div><p class="sh-step">Paso 4 de 5</p><h2>Redactando</h2><p class="sh-lede" id="pipeMsg">Los agentes trabajan en orden. Suele tardar entre dos y cinco minutos.</p></div></header>
+  <div class="card"><div class="barra" style="height:8px;background:var(--linea-2);border-radius:5px;overflow:hidden"><i id="pipeBar" style="display:block;height:100%;width:0;background:var(--brasa);transition:width .4s"></i></div></div>
+  <div class="cols"><div class="agl" id="agl"></div><aside class="card sticky"><h3><svg class="i"><use href="#i-book"/></svg>Bibliografía</h3><div id="refsLive"><p class="help">Aparecerá cuando el agente bibliográfico termine.</p></div></aside></div>
+</section>
+
+<!-- ═════ 5 · MEMORIA ═════ -->
+<section class="screen" data-step="5">
+  <header class="sh" style="--c:#0E8C7A"><div class="sh-ico"><svg class="i"><use href="#i-check"/></svg></div>
+    <div><p class="sh-step">Paso 5 de 5</p><h2 id="memTitle">La memoria</h2><p class="sh-lede" id="memMeta"></p></div></header>
+  <div id="checks"></div>
+  <div class="cols">
+    <div id="memSecs"></div>
+    <aside>
+      <div class="card sticky">
+        <h3><svg class="i"><use href="#i-download"/></svg>Exportar</h3>
+        <div class="actions"><button class="btn btn-word btn-sm" id="expDocx" type="button">Word</button><button class="btn btn-ghost btn-sm" id="expMd" type="button">Markdown</button><button class="btn btn-ghost btn-sm" id="expPrint" type="button">PDF (imprimir)</button><button class="btn btn-ghost btn-sm" id="expCopy" type="button">Copiar</button></div>
+        <p class="help">La bibliografía exportada incluye solo las referencias citadas, numeradas por orden de aparición.</p>
+      </div>
+      <div class="card"><h3><svg class="i"><use href="#i-scale"/></svg>Valoración con los criterios</h3><div id="valor"></div></div>
+      <div class="card"><h3><svg class="i"><use href="#i-check"/></svg>Control de calidad</h3><div id="qa" class="help" style="font-size:13.5px;white-space:pre-wrap"></div></div>
+      <div class="card"><h3><svg class="i"><use href="#i-book"/></svg>Referencias</h3><div id="refs"></div></div>
+    </aside>
+  </div>
+</section>
 </main>
 
-<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i><span id="toastMsg"></span></div>
+<footer><hr><p>GrantWriter · Fernando Borrás Rocher · Universidad Miguel Hernández de Elche. Los criterios de cada convocatoria son orientativos: consulta siempre las bases oficiales. La memoria es un borrador que debes revisar, completar y firmar tú; la valoración de los agentes no predice la de la agencia. Los datos se procesan en tu navegador y el texto viaja a OpenAI; la bibliografía se busca en Semantic Scholar, PubMed, OpenAlex, arXiv, Crossref y Europe PMC.</p></footer>
 
+<div class="bottomnav"><div class="bn-in">
+  <button class="btn btn-ghost" id="navBack" type="button"><svg class="i"><use href="#i-left"/></svg>Atrás</button>
+  <div class="bn-hint" id="navHint"></div>
+  <button class="btn btn-primary" id="navNext" type="button"><span id="navNextTxt">Siguiente</span><svg class="i"><use href="#i-right"/></svg></button>
+</div></div>
+<div class="modal" id="mHelp" role="dialog" aria-modal="true" aria-labelledby="mHelpT"><div class="modal-box"><div class="modal-head"><h2 id="mHelpT">Ayuda</h2><button type="button" data-close>Cerrar</button></div><div class="modal-body"><div class="glos" id="glos"></div></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+"use strict";
+/* ══════════════════════════════════════════════════════════
+   GrantWriter 2.0 · memorias de proyectos de I+D+i
+   Fernando Borrás Rocher · Universidad Miguel Hernández de Elche
+   ══════════════════════════════════════════════════════════ */
+const $ = id => document.getElementById(id), $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ico = n => `<svg class="i"><use href="#i-${n}"/></svg>`;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function toast(m, ms = 3600){ const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms); }
+function dl(n, c, t){ const b = c instanceof Blob ? c : new Blob([c], {type:t}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = n; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1500); }
+function cargaLib(urls){ return urls.reduce((p,u) => p.catch(() => new Promise((ok,ko) => { const s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = () => { s.remove(); ko(); }; document.head.appendChild(s); })), Promise.reject()).catch(() => { throw new Error('No se pudo cargar una librería: ¿hay conexión?'); }); }
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let convActiva=null, seccionesActivas=new Set(['resumen','introduccion','estado_arte','objetivos','metodologia','innovacion','impacto','equipo']);
-let docTextos=[], refsEncontradas=[], resultado=null, docFiles=[];
-
-// ─── CONVOCATORIA CONFIG ──────────────────────────────────────────────────────
-const CONV_CONFIG={
-  cdti:{label:'CDTI — Proyectos I+D+i',idioma:'es',criterios:'Viabilidad técnica, mercado potencial, equipo empresarial, TRL objetivo, plan de explotación comercial',instrBase:'Usa terminología empresarial e innovadora. Enfatiza el valor de mercado y la transferencia tecnológica.'},
-  aei:{label:'AEI — Proyectos Generación del Conocimiento',idioma:'es',criterios:'Calidad científica, originalidad, metodología, trayectoria del equipo, publicaciones previas',instrBase:'Usa lenguaje académico riguroso. Enfatiza la contribución al conocimiento científico y la publicación de resultados.'},
-  horizonte:{label:'Horizonte Europa',idioma:'en',criterios:'Excellence, Impact, Quality and efficiency of implementation. TRL, consortium, dissemination plan, ethics',instrBase:'Write in formal academic English. Follow the Horizon Europe proposal structure. Emphasize European added value and cross-border collaboration.'},
-  ivace:{label:'IVACE — Comunitat Valenciana',idioma:'es',criterios:'Impacto en la economía valenciana, empleo generado, innovación tecnológica, colaboración público-privada',instrBase:'Enfatiza el impacto local en la Comunitat Valenciana, la creación de empleo y la competitividad empresarial regional.'},
-  torres_quevedo:{label:'Torres Quevedo — PTI',idioma:'es',criterios:'Perfil del investigador, plan de investigación en empresa, transferencia de conocimiento, viabilidad del proyecto',instrBase:'Describe el plan de investigación del PTI, la empresa receptora y el valor añadido para ambas partes.'},
-  retos:{label:'Retos Colaboración AEI',idioma:'es',criterios:'Colaboración universidad-empresa, orientación al mercado, plan de explotación, calidad científica',instrBase:'Enfatiza la colaboración entre el grupo investigador y la empresa, el reto tecnológico a resolver y el plan de explotación conjunto.'},
-  personalizado:{label:'Convocatoria personalizada',idioma:'es',criterios:'Según los criterios definidos por el usuario',instrBase:'Adapta el contenido a los criterios específicos de la convocatoria indicada.'}
+/* ══════════ CONVOCATORIAS Y SECCIONES ══════════ */
+const CONV = {
+  aei:{em:'🔬', t:'AEI · Generación de Conocimiento', d:'Investigación académica', idioma:'es', crit:'Calidad, novedad y relevancia científica de la propuesta; adecuación de la metodología y del plan de trabajo; capacidad y trayectoria del equipo; impacto científico-técnico y plan de difusión.', tono:'Lenguaje académico riguroso. Enfatiza la contribución al conocimiento y la publicación de resultados.'},
+  cdti:{em:'🏭', t:'CDTI · Proyectos de I+D', d:'I+D+i empresarial', idioma:'es', crit:'Viabilidad técnica y novedad tecnológica; mercado potencial y plan de explotación comercial; capacidad del equipo y de la empresa; madurez tecnológica (TRL) de partida y objetivo.', tono:'Terminología empresarial e innovadora. Enfatiza el valor de mercado y la transferencia tecnológica.'},
+  horizonte:{em:'🇪🇺', t:'Horizonte Europa', d:'Pilares 1 a 3, ERC, MSCA', idioma:'en', crit:'Excellence (objectives, ambition, methodology); Impact (expected outcomes, pathways, dissemination and exploitation); Quality and efficiency of the implementation (work plan, resources, consortium).', tono:'Formal academic English. Follow the Horizon Europe structure. Emphasise European added value.'},
+  ivace:{em:'🌊', t:'IVACE', d:'Comunitat Valenciana', idioma:'es', crit:'Innovación tecnológica; impacto en la economía valenciana y en el empleo; viabilidad técnica y económica; colaboración con agentes del sistema valenciano de innovación.', tono:'Enfatiza el impacto en la Comunitat Valenciana, el empleo y la competitividad regional.'},
+  torres:{em:'👩‍🔬', t:'Torres Quevedo', d:'Personal investigador en empresa', idioma:'es', crit:'Perfil de la persona investigadora; plan de investigación en la empresa; transferencia de conocimiento; viabilidad y valor añadido para la empresa.', tono:'Describe el plan de investigación, la empresa receptora y el valor añadido para ambas partes.'},
+  retos:{em:'🤝', t:'Colaboración público-privada', d:'Universidad y empresa', idioma:'es', crit:'Calidad científico-técnica; colaboración efectiva entre organismos de investigación y empresas; orientación al mercado y plan de explotación conjunto.', tono:'Enfatiza la colaboración, el reto tecnológico y la explotación conjunta.'},
+  otra:{em:'✏️', t:'Otra convocatoria', d:'Pega sus criterios', idioma:'es', crit:'', tono:'Adapta el contenido a los criterios indicados.'}
 };
+const SECS = [['resumen','Resumen ejecutivo','Lo primero que lee el evaluador'],['introduccion','Introducción y antecedentes','Problema y contexto'],['estado_arte','Estado del arte','Con bibliografía citada'],['objetivos','Objetivos','General y específicos'],['metodologia','Metodología y plan de trabajo','Tareas, cronograma, hitos'],['innovacion','Innovación','Qué es nuevo'],['impacto','Impacto y transferencia','Científico, social, económico'],['equipo','Equipo','Capacidades y trayectoria'],['riesgos','Riesgos y contingencias','Qué puede fallar'],['presupuesto','Presupuesto','Partidas y justificación'],['difusion','Difusión y comunicación','Publicaciones y divulgación'],['etica','Aspectos éticos','Datos, personas, permisos']];
+const SEC_T = Object.fromEntries(SECS.map(s => [s[0], s[1]]));
+const BASICAS = ['resumen','introduccion','estado_arte','objetivos','metodologia','innovacion','impacto','equipo'];
 
-// ─── SECCIONES CONFIG ─────────────────────────────────────────────────────────
-const SEC_LABELS={
-  resumen:'Resumen ejecutivo',introduccion:'Introducción y antecedentes',
-  estado_arte:'Estado del arte',objetivos:'Objetivos',
-  metodologia:'Metodología',innovacion:'Innovación',
-  impacto:'Impacto y transferencia',equipo:'Equipo investigador',
-  riesgos:'Análisis de riesgos',presupuesto:'Presupuesto',
-  diseminacion:'Plan de diseminación',etica:'Consideraciones éticas'
+/* ══════════ ESTADO ══════════ */
+const G0 = () => ({conv:null, secs:[...BASICAS], docs:[], res:null, _demo:false});
+let G = G0();
+const CAMPOS = ['convNombre','convCrit','idioma','titulo','entidad','area','ip','duracion','presupuesto','desc','equipo','datos','instr'];
+function guardar(){ if(G._demo) return; try{ const f = Object.fromEntries(CAMPOS.map(k => [k, $(k).value])); localStorage.setItem('grantwriter_sesion', JSON.stringify({G:{...G, docs:G.docs.map(d => ({...d, texto:d.texto.slice(0, 20000)}))}, f, t:Date.now()})); }catch(e){} }
+
+/* ══════════ NAVEGACIÓN ══════════ */
+let step = 0, corriendo = false;
+const STEPS = ['Inicio','Convocatoria','Proyecto','Secciones','Redacción','Memoria'];
+function buildStepper(){ $('stepper').innerHTML = STEPS.map((s,i) => `${i ? `<span class="sline${i <= step ? ' on' : ''}"></span>` : ''}<button class="sdot" type="button" data-go="${i}" data-state="${i < step ? 'done' : i === step ? 'now' : ''}" ${i === step ? 'aria-current="step"' : ''}><span class="n">${i < step ? ico('check') : i === 0 ? ico('doc') : i}</span><span class="lbl">${s}</span></button>`).join(''); $$('#stepper [data-go]').forEach(b => b.onclick = () => irA(+b.dataset.go)); }
+function irA(i){ if(corriendo && i !== 4) return toast('Espera a que terminen los agentes'); if(i === 5 && !G.res) return toast('Aún no hay memoria'); go(i); }
+function go(i){ step = i; $$('.screen').forEach(s => s.classList.toggle('on', +s.dataset.step === i)); $('progBar').style.width = (i / 5 * 100) + '%'; if(i === 5) pintaMemoria(); buildStepper(); updateNav(); window.scrollTo({top:0, behavior:'instant'}); }
+const HINTS = ['Mira primero una <b>memoria de ejemplo</b>: no necesita clave.', 'Si tienes las bases, pega sus criterios.', 'Lo que no cuentes quedará como <b>[COMPLETAR]</b>.', 'Empieza por las básicas; luego puedes añadir.', 'No cierres la pestaña mientras trabajan.', 'Revisa las marcas antes de enviar nada.'];
+function updateNav(){ $('navBack').classList.toggle('hidden', step === 0 || corriendo); $('navNextTxt').textContent = ['Empezar','Siguiente: el proyecto','Siguiente: las secciones', G.secs.length ? `Redactar ${G.secs.length} secciones` : 'Elige secciones', corriendo ? 'Trabajando…' : 'Ver la memoria', 'Nueva memoria'][step]; $('navHint').innerHTML = HINTS[step]; }
+$('navBack').onclick = () => { if(step > 0) irA(step - 1); };
+$('navNext').onclick = () => {
+  if(corriendo) return;
+  if(step === 0) return go(1);
+  if(step === 1){ if(!G.conv) return toast('Elige una convocatoria'); if(!$('convCrit').value.trim()) return toast('Escribe los criterios de evaluación'); if(!localStorage.getItem('ia_openai_key')){ $('apiKey').focus(); return toast('Pega tu clave de OpenAI'); } return go(2); }
+  if(step === 2){ if($('desc').value.trim().length < 150) { $('desc').focus(); return toast('Describe el proyecto con algo más de detalle'); } guardar(); return go(3); }
+  if(step === 3){ if(!G.secs.length) return toast('Elige al menos una sección'); return redactar(); }
+  if(step === 4){ if(G.res) return go(5); return; }
+  if(step === 5){ if(!confirm('¿Empezar una memoria nueva? La actual se pierde si no la has exportado.')) return; const k = G.conv; G = G0(); CAMPOS.forEach(c => { if(!['idioma','convNombre','convCrit'].includes(c)) $(c).value = c === 'duracion' ? 36 : ''; }); G.conv = k; pintaConvs(); pintaSecs(); pintaFiles(); localStorage.removeItem('grantwriter_sesion'); go(2); }
 };
+$('goHome').onclick = () => irA(0);
+$('btnStart').onclick = () => go(1);
 
-// ─── AGENTS CONFIG ────────────────────────────────────────────────────────────
-const AGENTS=[
-  {id:'context',   icon:'📋',label:'Analizador de contexto',       phase:'analisis'},
-  {id:'biblio',    icon:'📚',label:'Agente bibliográfico',          phase:'biblio'},
-  {id:'stateofart',icon:'🔭',label:'Estado del arte',              phase:'biblio'},
-  {id:'strategy',  icon:'🎯',label:'Estratega de convocatoria',    phase:'analisis'},
-  {id:'writer',    icon:'✍️',label:'Redactor principal',           phase:'redaccion'},
-  {id:'impact',    icon:'🚀',label:'Agente de impacto',            phase:'redaccion'},
-  {id:'adequacy',  icon:'✅',label:'Adecuación a convocatoria',    phase:'evaluacion'},
-  {id:'coherence', icon:'🔗',label:'Agente de coherencia',         phase:'evaluacion'},
-  {id:'qa',        icon:'⭐',label:'Control de calidad',           phase:'evaluacion'}
-];
+/* ══════════ PASO 1 · CONVOCATORIA ══════════ */
+function pintaConvs(){ $('convs').innerHTML = Object.entries(CONV).map(([k,c]) => `<button type="button" data-c="${k}" aria-pressed="${G.conv === k}"><span class="em">${c.em}</span><b>${esc(c.t)}</b><small>${esc(c.d)}</small></button>`).join(''); $$('#convs [data-c]').forEach(b => b.onclick = () => selConv(b.dataset.c)); }
+function selConv(k, mantener){ G.conv = k; const c = CONV[k]; if(!mantener){ $('convNombre').value = k === 'otra' ? '' : c.t; $('convCrit').value = c.crit; $('idioma').value = c.idioma; } pintaConvs(); if(k === 'otra' && !mantener) $('convNombre').focus(); }
+$('apiKey').oninput = () => localStorage.setItem('ia_openai_key', $('apiKey').value.trim());
+$('model').onchange = () => localStorage.setItem('grantwriter_model', $('model').value);
+$('btnEye').onclick = () => { const k = $('apiKey'); k.type = k.type === 'password' ? 'text' : 'password'; };
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-window.onload=()=>{
-  const k=localStorage.getItem('grantwriter_apikey');
-  if(k) document.getElementById('apiKey').value=k;
-  buildAgentsList();
+/* ══════════ PASO 2 · PROYECTO Y DOCUMENTOS ══════════ */
+async function leeArchivo(f){
+  const ext = f.name.split('.').pop().toLowerCase();
+  if(ext === 'pdf'){ if(!window.pdfjsLib) await cargaLib(['https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js']); pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; const pdf = await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise; let t = ''; for(let p = 1; p <= Math.min(pdf.numPages, 25); p++){ const c = await (await pdf.getPage(p)).getTextContent(); t += c.items.map(i => i.str).join(' ') + '\n'; } return t; }
+  if(ext === 'docx'){ if(!window.mammoth) await cargaLib(['https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js']); return (await mammoth.extractRawText({arrayBuffer:await f.arrayBuffer()})).value; }
+  return await f.text();
+}
+async function anadeDocs(fs){ for(const f of fs){ try{ const t = (await leeArchivo(f)).trim(); if(!t) throw new Error('sin texto'); G.docs.push({nombre:f.name, texto:t}); }catch(e){ toast(f.name + ': ' + e.message, 5000); } } pintaFiles(); guardar(); }
+function pintaFiles(){ $('files').innerHTML = G.docs.map((d,i) => `<div class="file" style="display:flex;gap:8px;align-items:center;background:var(--papel);border-radius:10px;padding:7px 10px;margin-bottom:6px;font-size:13px">${ico('doc')}<b style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(d.nombre)}</b><small>${d.texto.split(/\s+/).length.toLocaleString('es')} palabras</small><button class="iconbtn" type="button" data-x="${i}" aria-label="Quitar">${ico('trash')}</button></div>`).join(''); $$('#files [data-x]').forEach(b => b.onclick = () => { G.docs.splice(+b.dataset.x, 1); pintaFiles(); }); }
+const drop = $('drop');
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => anadeDocs([...e.dataTransfer.files]));
+drop.onkeydown = e => { if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); $('fileIn').click(); } };
+$('fileIn').onchange = e => { anadeDocs([...e.target.files]); e.target.value = ''; };
+
+/* ══════════ PASO 3 · SECCIONES ══════════ */
+function pintaSecs(){ $('secs').innerHTML = SECS.map(([k,t,d]) => `<label class="${G.secs.includes(k) ? 'on' : ''}"><input type="checkbox" value="${k}" ${G.secs.includes(k) ? 'checked' : ''}><span><b>${t}</b><small>${d}</small></span></label>`).join(''); $$('#secs input').forEach(c => c.onchange = () => { G.secs = SECS.map(s => s[0]).filter(k => k === c.value ? c.checked : G.secs.includes(k)); pintaSecs(); updateNav(); }); }
+$('secTodas').onclick = () => { G.secs = SECS.map(s => s[0]); pintaSecs(); updateNav(); };
+$('secBasicas').onclick = () => { G.secs = [...BASICAS]; pintaSecs(); updateNav(); };
+
+/* ══════════ AGENTES ══════════ */
+async function ia(sistema, usuario, {json = false, max = 2500} = {}){
+  const key = localStorage.getItem('ia_openai_key'); if(!key) throw new Error('Falta la clave de OpenAI.');
+  const modelo = localStorage.getItem('grantwriter_model') || 'gpt-6-luna';
+  const body = {model:modelo, messages:[{role:'system', content:sistema + (json ? '\nResponde SOLO con JSON válido.' : '')}, {role:'user', content:usuario}]};
+  if(json) body.response_format = {type:'json_object'};
+  if(/^(gpt-[56]|o[1-9])/.test(modelo)){ body.max_completion_tokens = max * 2; body.reasoning_effort = 'low'; } else { body.temperature = 0.4; body.max_tokens = max; }
+  let ultimo;
+  for(let k = 0; k < 3; k++){
+    let r; try{ r = await fetch('https://api.openai.com/v1/chat/completions', {method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer ' + key}, body:JSON.stringify(body)}); }catch(e){ ultimo = new Error('No hay conexión con OpenAI.'); await sleep(1500 * (k + 1)); continue; }
+    if(!r.ok){ const t = await r.text(); if(r.status === 401) throw new Error('OpenAI no reconoce tu clave.'); if(r.status === 429 && /quota|billing/i.test(t)) throw new Error('Tu cuenta de OpenAI no tiene saldo.'); if(r.status === 429 || r.status >= 500){ ultimo = new Error('OpenAI respondió ' + r.status); await sleep(2500 * (k + 1)); continue; } throw new Error('OpenAI ' + r.status + ': ' + t.slice(0, 160)); }
+    const txt = ((await r.json()).choices?.[0]?.message?.content || '').trim();
+    if(!json) return txt;
+    try{ return JSON.parse(txt.replace(/^```(?:json)?|```$/g, '').trim()); }catch(e){ const m = txt.match(/\{[\s\S]*\}/); if(m){ try{ return JSON.parse(m[0]); }catch(e2){} } ultimo = new Error('Respuesta no válida'); }
+  }
+  throw ultimo;
+}
+const IDIOMA = () => ({es:'español', en:'inglés (English)', ca:'catalán/valenciano'})[$('idioma').value];
+const NOINV = () => `REGLAS OBLIGATORIAS:
+1. NO inventes datos. Ninguna cifra, importe, porcentaje, fecha, nombre de persona o entidad, socio, publicación, patente, TRL, resultado previo o valor de un indicador que no aparezca en la INFORMACIÓN DEL PROYECTO. Si la sección necesita un dato que no tienes, escribe [COMPLETAR: qué dato hace falta].
+2. Cita solo con [N] referencias de la LISTA DE REFERENCIAS y solo para afirmaciones que su resumen respalde. Si no hay una referencia adecuada, no cites.
+3. Escribe en ${IDIOMA()}. Párrafos y, si hace falta, listas con guiones. Sin encabezados con # ni negritas con **.`;
+function infoProyecto(){
+  const v = k => $(k).value.trim();
+  return `CONVOCATORIA: ${v('convNombre')}
+CRITERIOS DE EVALUACIÓN: ${v('convCrit')}
+ENFOQUE: ${CONV[G.conv]?.tono || ''}
+TÍTULO: ${v('titulo') || '[no indicado]'}
+ENTIDAD: ${v('entidad') || '[no indicada]'}
+ÁREA: ${v('area') || '[no indicada]'}
+INVESTIGADOR/A PRINCIPAL: ${v('ip') || '[no indicado]'}
+DURACIÓN: ${v('duracion')} meses
+PRESUPUESTO: ${v('presupuesto') || '[no indicado]'}
+DESCRIPCIÓN: ${v('desc')}
+EQUIPO: ${v('equipo') || '[no indicado]'}
+DATOS DISPONIBLES: ${v('datos') || '[ninguno]'}
+${v('instr') ? 'INSTRUCCIONES DEL USUARIO: ' + v('instr') : ''}
+${G.docs.length ? 'DOCUMENTOS DE APOYO (extractos):\n' + G.docs.map(d => `— ${d.nombre}: ${d.texto.slice(0, 3000)}`).join('\n') : ''}`;
+}
+const listaRefs = refs => refs.map((r,i) => `[${i + 1}] ${r.authors || 's. a.'} (${r.year || 's. f.'}). ${r.title}. ${r.abstract ? 'Resumen: ' + r.abstract.slice(0, 450) : '(sin resumen)'}`).join('\n');
+
+/* ── bibliografía en seis bases, con resúmenes ── */
+const inv = o => { if(!o) return ''; const w = []; Object.entries(o).forEach(([k,ps]) => ps.forEach(p => w[p] = k)); return w.filter(Boolean).join(' '); };
+const BUSCA = {
+  'Semantic Scholar': async q => { const d = await (await fetch(`https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(q)}&limit=4&fields=title,authors,year,externalIds,abstract`)).json(); return (d.data || []).map(p => ({title:p.title, authors:(p.authors || []).slice(0, 3).map(a => a.name).join(', ') + ((p.authors || []).length > 3 ? ' et al.' : ''), year:p.year, doi:p.externalIds?.DOI || '', abstract:p.abstract || ''})); },
+  'OpenAlex': async q => { const d = await (await fetch(`https://api.openalex.org/works?search=${encodeURIComponent(q)}&per-page=4&select=title,authorships,publication_year,doi,abstract_inverted_index`)).json(); return (d.results || []).map(w => ({title:w.title, authors:(w.authorships || []).slice(0, 3).map(a => a.author?.display_name).join(', ') + ((w.authorships || []).length > 3 ? ' et al.' : ''), year:w.publication_year, doi:(w.doi || '').replace('https://doi.org/', ''), abstract:inv(w.abstract_inverted_index)})); },
+  'Europe PMC': async q => { const d = await (await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(q)}&pageSize=3&format=json&resultType=core`)).json(); return (d.resultList?.result || []).map(w => ({title:w.title, authors:(w.authorString || '').split(', ').slice(0, 3).join(', '), year:w.pubYear, doi:w.doi || '', abstract:(w.abstractText || '').replace(/<[^>]+>/g, '')})); },
+  'PubMed': async q => { const s = await (await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}&retmax=3&retmode=json`)).json(); const ids = s.esearchresult?.idlist || []; if(!ids.length) return []; const d = await (await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`)).json(); return ids.map(id => { const a = d.result?.[id] || {}; return {title:a.title, authors:(a.authors || []).slice(0, 3).map(x => x.name).join(', '), year:(a.pubdate || '').split(' ')[0], doi:((a.articleids || []).find(x => x.idtype === 'doi') || {}).value || '', abstract:''}; }); },
+  'Crossref': async q => { const d = await (await fetch(`https://api.crossref.org/works?query=${encodeURIComponent(q)}&rows=3&select=title,author,issued,DOI,abstract`)).json(); return (d.message?.items || []).map(w => ({title:(w.title || [])[0], authors:(w.author || []).slice(0, 3).map(a => `${a.given || ''} ${a.family || ''}`.trim()).join(', '), year:w.issued?.['date-parts']?.[0]?.[0], doi:w.DOI || '', abstract:(w.abstract || '').replace(/<[^>]+>/g, '')})); },
+  'arXiv': async q => { const x = new DOMParser().parseFromString(await (await fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(q)}&max_results=2`)).text(), 'text/xml'); return [...x.querySelectorAll('entry')].map(e => ({title:(e.querySelector('title')?.textContent || '').trim(), authors:[...e.querySelectorAll('author name')].slice(0, 3).map(a => a.textContent).join(', '), year:(e.querySelector('published')?.textContent || '').slice(0, 4), doi:'', url:e.querySelector('id')?.textContent || '', abstract:(e.querySelector('summary')?.textContent || '').trim()})); }
 };
-
-function buildAgentsList(){
-  const list=document.getElementById('agentsList');
-  list.innerHTML='';
-  AGENTS.forEach(ag=>{
-    const row=document.createElement('div');
-    row.className='agent-row';
-    row.id='row-'+ag.id;
-    row.innerHTML=`
-      <div class="agent-dot idle" id="dot-${ag.id}">${ag.icon}</div>
-      <div class="agent-info">
-        <div class="agent-name" id="name-${ag.id}">${ag.label}</div>
-        <div class="agent-msg" id="msg-${ag.id}">En espera…</div>
-      </div>
-      <div class="agent-phase ${ag.phase}"></div>`;
-    list.appendChild(row);
-  });
-}
-
-// ─── STEPS ────────────────────────────────────────────────────────────────────
-function setStep(n){
-  [1,2,3,4,5].forEach(i=>{
-    document.getElementById('panel'+i).classList.toggle('active',i===n);
-    const sc=document.getElementById('sc'+i),sl=document.getElementById('sl'+i);
-    sc.classList.remove('active','done');
-    if(i<n)sc.classList.add('done'); else if(i===n)sc.classList.add('active');
-    sl.classList.toggle('active',i===n);
-  });
-  [1,2,3,4].forEach(i=>document.getElementById('con'+i).classList.toggle('done',i<n));
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-function irPaso1(){setStep(1);}
-function irPaso2(){
-  if(!convActiva){showToast('Selecciona una convocatoria','error');return;}
-  const k=document.getElementById('apiKey').value.trim();
-  if(!k){showToast('Introduce tu clave API de OpenAI','error');return;}
-  localStorage.setItem('grantwriter_apikey',k);
-  setStep(2);
-}
-function irPaso3(){
-  if(!document.getElementById('descripcionProyecto').value.trim()){
-    showToast('Describe el proyecto antes de continuar','error');return;
+async function buscaBiblio(consultas, aviso){
+  const todas = [];
+  for(const q of consultas.slice(0, 4)){
+    aviso(`Buscando «${q}» en seis bases…`);
+    const r = await Promise.all(Object.entries(BUSCA).map(async ([src, f]) => { try{ return (await f(q)).map(x => ({...x, src})); }catch(e){ return []; } }));
+    todas.push(...r.flat());
   }
-  setStep(3);
-}
-async function irPaso4(){
-  if(seccionesActivas.size===0){showToast('Selecciona al menos una sección','error');return;}
-  setStep(4);
-  buildAgentsList();
-  await ejecutarPipeline();
-}
-function irPaso5(){setStep(5);renderMemoria();}
-
-// ─── CONV SELECTION ───────────────────────────────────────────────────────────
-function selConv(card,conv){
-  document.querySelectorAll('.conv-card').forEach(c=>c.classList.remove('active'));
-  card.classList.add('active'); convActiva=conv;
-  document.getElementById('customConvWrap').style.display=conv==='personalizado'?'block':'none';
-  // Auto idioma
-  const cfg=CONV_CONFIG[conv]||{};
-  const sel=document.getElementById('idiomaMemoria');
-  if(conv==='horizonte') sel.value='en';
-  else if(conv!=='personalizado') sel.value='es';
-  else sel.value='auto';
+  const vistos = new Set();
+  return todas.filter(r => r.title && r.title.length > 10).filter(r => { const k = (r.doi || r.title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 60)).toLowerCase(); if(vistos.has(k)) return false; vistos.add(k); return true; }).slice(0, 30);
 }
 
-// ─── SECCIONES ────────────────────────────────────────────────────────────────
-function updateSec(cb){
-  const lbl=cb.closest('.sec-check');
-  if(cb.checked){seccionesActivas.add(cb.value);lbl.classList.add('checked');}
-  else{seccionesActivas.delete(cb.value);lbl.classList.remove('checked');}
-}
+/* ── panel de agentes ── */
+const AG = [['contexto','📋','Analizador de contexto','Análisis'],['biblio','📚','Agente bibliográfico','Bibliografía'],['arte','🔭','Estado del arte','Bibliografía'],['estrategia','🎯','Estratega de la convocatoria','Análisis'],['redactor','✍️','Redactor principal','Redacción'],['impacto','🚀','Agente de impacto','Redacción'],['adecuacion','✅','Adecuación a los criterios','Evaluación'],['coherencia','🔗','Coherencia y mejoras','Evaluación'],['qa','⭐','Control de calidad','Evaluación']];
+function pintaAgentes(){ $('agl').innerHTML = AG.map(([k,e,t,f]) => `<div class="agr" id="ag-${k}"><span class="d">${e}</span><span><b>${t}</b><span id="agm-${k}">En espera</span></span><span class="ph">${f}</span></div>`).join(''); }
+function ag(k, estado, msg, frac){ const el = $('ag-' + k); if(el){ el.className = 'agr ' + (estado || ''); if(msg != null) $('agm-' + k).textContent = msg; } if(frac != null) $('pipeBar').style.width = Math.round(frac * 100) + '%'; }
 
-// ─── FILE HANDLING ────────────────────────────────────────────────────────────
-function onDocSelected(input){
-  const files=Array.from(input.files);
-  files.forEach(f=>{
-    if(f.size>11*1024*1024){showToast(`${f.name} supera 10 MB`,'error');return;}
-    docFiles.push(f);
-    const chip=document.createElement('span');
-    chip.className='chip'; chip.style.cursor='default';
-    chip.innerHTML=`<i class="fa-solid fa-file"></i>${f.name.substring(0,25)} <span onclick="removeDoc(this,'${f.name}')" style="cursor:pointer;margin-left:2px;color:#c0392b;">×</span>`;
-    document.getElementById('docFileList').appendChild(chip);
-  });
-  document.getElementById('docUploadZone').classList.add('has-file');
-}
-
-function removeDoc(span,name){
-  docFiles=docFiles.filter(f=>f.name!==name);
-  span.closest('.chip').remove();
-}
-
-async function extraerPDF(file){
-  const buf=await file.arrayBuffer();
-  const pdf=await pdfjsLib.getDocument({data:buf}).promise;
-  let txt='';
-  for(let i=1;i<=Math.min(pdf.numPages,15);i++){
-    const p=await pdf.getPage(i);
-    const c=await p.getTextContent();
-    txt+=c.items.map(it=>it.str).join(' ')+'\n';
-  }
-  return txt;
-}
-
-async function extraerDocx(file){
-  const buf=await file.arrayBuffer();
-  if(!window.JSZip)await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-  const zip=await JSZip.loadAsync(buf);
-  const xml=await zip.file('word/document.xml').async('string');
-  return xml.replace(/<w:br[^>]*\/>/g,'\n').replace(/<w:p[ >][^>]*>/g,'\n').replace(/<[^>]+>/g,'')
-    .replace(/&amp;/g,'&').replace(/\n{3,}/g,'\n\n').trim();
-}
-
-async function extraerTextoArchivos(){
-  const textos=[];
-  for(const f of docFiles){
-    try{
-      if(f.name.endsWith('.pdf')) textos.push(await extraerPDF(f));
-      else if(f.name.endsWith('.docx')||f.name.endsWith('.doc')) textos.push(await extraerDocx(f));
-      else textos.push(await f.text());
-    }catch(e){textos.push('');}
-  }
-  return textos.join('\n\n---\n\n');
-}
-
-function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s);});}
-
-// ─── BIBLIOGRAFÍA APIs ────────────────────────────────────────────────────────
-async function buscarSS(q){try{const r=await fetch(`https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(q)}&limit=3&fields=title,authors,year,externalIds`);const d=await r.json();return(d.data||[]).map(p=>({title:p.title,authors:(p.authors||[]).map(a=>a.name).join(', '),year:p.year,doi:p.externalIds?.DOI||'',src:'Semantic Scholar'}));}catch{return[];}}
-async function buscarPM(q){try{const sr=await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}&retmax=3&retmode=json`);const sd=await sr.json();const ids=(sd.esearchresult?.idlist||[]).slice(0,3);if(!ids.length)return[];const fr=await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`);const fd=await fr.json();return ids.map(id=>{const a=fd.result?.[id]||{};return{title:a.title||'',authors:(a.authors||[]).map(x=>x.name).join(', '),year:a.pubdate?.split(' ')[0]||'',doi:a.elocationid?.replace('doi: ',''),src:'PubMed'};});}catch{return[];}}
-async function buscarOA(q){try{const r=await fetch(`https://api.openalex.org/works?search=${encodeURIComponent(q)}&per-page=3&select=title,authorships,publication_year,doi`);const d=await r.json();return(d.results||[]).map(w=>({title:w.title,authors:(w.authorships||[]).slice(0,3).map(a=>a.author?.display_name||'').join(', '),year:w.publication_year,doi:w.doi?.replace('https://doi.org/',''),src:'OpenAlex'}));}catch{return[];}}
-async function buscarAX(q){try{const r=await fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(q)}&max_results=2`);const txt=await r.text();const xml=new DOMParser().parseFromString(txt,'text/xml');return Array.from(xml.querySelectorAll('entry')).slice(0,2).map(e=>({title:e.querySelector('title')?.textContent?.trim()||'',authors:Array.from(e.querySelectorAll('author name')).map(a=>a.textContent).join(', '),year:e.querySelector('published')?.textContent?.split('-')[0]||'',doi:e.querySelector('id')?.textContent||'',src:'arXiv'}));}catch{return[];}}
-async function buscarCR(q){try{const r=await fetch(`https://api.crossref.org/works?query=${encodeURIComponent(q)}&rows=2&select=title,author,published,DOI`);const d=await r.json();return(d.message?.items||[]).slice(0,2).map(w=>({title:Array.isArray(w.title)?w.title[0]:w.title||'',authors:(w.author||[]).slice(0,3).map(a=>`${a.given||''} ${a.family||''}`).join(', '),year:w.published?.['date-parts']?.[0]?.[0]||'',doi:w.DOI||'',src:'CrossRef'}));}catch{return[];}}
-async function buscarEP(q){try{const r=await fetch(`https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(q)}&pageSize=2&format=json`);const d=await r.json();return(d.resultList?.result||[]).slice(0,2).map(w=>({title:w.title||'',authors:w.authorString||'',year:w.pubYear||'',doi:w.doi||'',src:'EuropePMC'}));}catch{return[];}}
-
-async function buscarBiblio(queries){
-  const todos=[];
-  for(const q of queries.slice(0,4)){
-    setMsg('biblio',`📚 Buscando: "${q.substring(0,50)}…"`,'active');
-    const [ss,pm,oa,ax,cr,ep]=await Promise.all([buscarSS(q),buscarPM(q),buscarOA(q),buscarAX(q),buscarCR(q),buscarEP(q)]);
-    todos.push(...ss,...pm,...oa,...ax,...cr,...ep);
-  }
-  const seen=new Set();
-  return todos.filter(r=>{const k=(r.title||'').substring(0,50).toLowerCase();if(seen.has(k))return false;seen.add(k);return true;}).slice(0,25);
-}
-
-// ─── AGENT HELPERS ────────────────────────────────────────────────────────────
-function setAgent(id,state){
-  const dot=document.getElementById('dot-'+id);
-  const name=document.getElementById('name-'+id);
-  dot.className='agent-dot '+(state||'idle');
-  name.className='agent-name '+(state||'');
-}
-function setMsg(id,msg,type=''){
-  const el=document.getElementById('msg-'+id);
-  el.className='agent-msg'+(type?' '+type:'');
-  el.textContent=msg;
-}
-function setGlobal(pct,msg){
-  document.getElementById('globalBar').style.width=pct+'%';
-  document.getElementById('globalPct').textContent=pct+'%';
-  document.getElementById('globalStatus').textContent=msg;
-}
-
-async function callGPT(system,user,apiKey,maxTokens=2500){
-  const r=await fetch('https://api.openai.com/v1/chat/completions',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-    body:JSON.stringify({model:'gpt-6-luna',max_tokens:maxTokens,temperature:0.45,
-      messages:[{role:'system',content:system},{role:'user',content:user}]})
-  });
-  if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Error API');}
-  const d=await r.json();
-  return d.choices[0].message.content.trim();
-}
-
-function parseJSON(txt,fb){try{return JSON.parse(txt.replace(/```json|```/g,'').trim());}catch{return fb;}}
-
-// ─── PIPELINE 9 AGENTES ───────────────────────────────────────────────────────
-async function ejecutarPipeline(){
-  const apiKey=document.getElementById('apiKey').value.trim();
-  const cfg=CONV_CONFIG[convActiva]||CONV_CONFIG.personalizado;
-  const customConv=document.getElementById('customConvDesc').value.trim();
-  const idiomaEl=document.getElementById('idiomaMemoria').value;
-  const idioma=idiomaEl==='auto'?cfg.idioma:idiomaEl;
-  const titulo=document.getElementById('tituloProyecto').value.trim();
-  const entidad=document.getElementById('entidad').value.trim();
-  const area=document.getElementById('area').value.trim();
-  const ip=document.getElementById('ip').value.trim();
-  const duracion=document.getElementById('duracion').value;
-  const desc=document.getElementById('descripcionProyecto').value.trim();
-  const equipoTxt=document.getElementById('equipo').value.trim();
-  const instrExtra=document.getElementById('instrucciones').value.trim();
-  const secList=[...seccionesActivas];
-
-  AGENTS.forEach(a=>setAgent(a.id,'idle'));
-  document.getElementById('refsSection').style.display='none';
-  document.getElementById('btnVerMemoria').style.display='none';
-  refsEncontradas=[]; resultado=null;
-
-  const ctx=`CONVOCATORIA: ${cfg.label}${customConv?' — '+customConv:''}
-IDIOMA: ${idioma==='en'?'English':'Español'}
-TÍTULO: ${titulo||'(pendiente)'}
-ENTIDAD: ${entidad||'(no indicada)'}
-ÁREA: ${area||'(no indicada)'}
-IP: ${ip||'(no indicado)'}
-DURACIÓN: ${duracion} meses
-DESCRIPCIÓN: ${desc}
-EQUIPO: ${equipoTxt||'(no indicado)'}
-CRITERIOS EVALUACIÓN: ${cfg.criterios}
-INSTRUCCIONES BASE: ${cfg.instrBase}
-${instrExtra?'INSTRUCCIONES ADICIONALES: '+instrExtra:''}`;
-
+/* ══════════ LOS NUEVE AGENTES ══════════ */
+async function redactar(){
+  corriendo = true; G._demo = false; go(4); pintaAgentes(); $('refsLive').innerHTML = '<p class="help">Aparecerá cuando el agente bibliográfico termine.</p>'; updateNav();
+  const info = infoProyecto(), secs = [...G.secs];
+  const res = {meta:{conv:G.conv, convNombre:$('convNombre').value, titulo:$('titulo').value, entidad:$('entidad').value, duracion:$('duracion').value, idioma:$('idioma').value, secs, fecha:new Date().toISOString()}, secciones:{}, refs:[], coherencia:[]};
   try{
-    // ── AGENTE 1: CONTEXTO ────────────────────────────────────────────────────
-    setAgent('context','running'); setGlobal(4,'Agente 1: Analizando el contexto del proyecto…');
-    setMsg('context','Analizando descripción y extrayendo keywords…','active');
-    if(docFiles.length>0){setMsg('context','Extrayendo texto de documentos adjuntos…','active');docTextos=[await extraerTextoArchivos()];}
-    const analisisCtx=await callGPT(
-      `Eres un experto en gestión de proyectos de I+D. Analiza el contexto del proyecto y extrae: keywords para búsqueda bibliográfica, fortalezas del proyecto, posibles debilidades, y preguntas clave a responder en la memoria. Responde JSON: {"keywords":["kw1","kw2","kw3","kw4"],"fortalezas":["f1"],"debilidades":["d1"],"preguntas_clave":["q1"]}`,
-      `${ctx}\n\nDOCUMENTOS ADICIONALES:\n${docTextos.join('\n\n').substring(0,4000)}`,apiKey,1000);
-    const ctxJson=parseJSON(analisisCtx,{keywords:[area||titulo||'research'],fortalezas:[],debilidades:[],preguntas_clave:[]});
-    setMsg('context',`✓ ${ctxJson.keywords.length} keywords · ${ctxJson.fortalezas.length} fortalezas detectadas`,'success');
-    setAgent('context','done');
+    ag('contexto', 'run', 'Leyendo el proyecto…', .03);
+    const c = await ia(`Eres gestor experto de proyectos de I+D. Analizas un proyecto para preparar su memoria. ${NOINV()}`, `${info}\n\nDevuelve {"consultas_en":["3-4 búsquedas bibliográficas en inglés, específicas"],"fortalezas":["..."],"debilidades":["..."],"preguntas_clave":["qué debe dejar claro la memoria"],"datos_faltantes":["dato que falta para una memoria creíble (p. ej., presupuesto desglosado, TRL, socios)"]}`, {json:true, max:1200});
+    res.ctx = c; ag('contexto', 'done', `${(c.fortalezas || []).length} fortalezas, ${(c.debilidades || []).length} debilidades, ${(c.datos_faltantes || []).length} datos que faltan`, .1);
 
-    // ── AGENTE 2: BIBLIOGRAFÍA ────────────────────────────────────────────────
-    setAgent('biblio','running'); setGlobal(14,'Agente 2: Buscando bibliografía en 6 bases de datos…');
-    setMsg('biblio','Consultando Semantic Scholar, PubMed, OpenAlex, arXiv, CrossRef, EuropePMC…','active');
-    refsEncontradas=await buscarBiblio(ctxJson.keywords);
-    setMsg('biblio',`✓ ${refsEncontradas.length} referencias encontradas`,'success');
-    setAgent('biblio','done');
-
-    // Mostrar refs en UI
-    document.getElementById('refsSection').style.display='block';
-    document.getElementById('refsCount').textContent=`${refsEncontradas.length} refs`;
-    const rList=document.getElementById('refsList'); rList.innerHTML='';
-    refsEncontradas.slice(0,15).forEach((r,i)=>{
-      const c=document.createElement('span');c.className='ref-chip';
-      c.title=`${r.authors||''} (${r.year||''}) — ${r.src}`;
-      c.textContent=`[${i+1}] ${(r.title||'').substring(0,38)}…`;
-      rList.appendChild(c);
-    });
-
-    const refsBib=refsEncontradas.slice(0,15).map((r,i)=>`[${i+1}] ${r.authors||'Autores'} (${r.year||'s.f.'}). ${r.title}.${r.doi?' DOI: '+r.doi:''} (${r.src})`).join('\n');
-
-    // ── AGENTE 3: ESTADO DEL ARTE ─────────────────────────────────────────────
-    setAgent('stateofart','running'); setGlobal(24,'Agente 3: Elaborando estado del arte…');
-    setMsg('stateofart','Sintetizando literatura encontrada…','active');
-    const estadoArte=await callGPT(
-      `Eres un investigador experto sintetizando el estado del arte para una memoria de proyecto ${cfg.label}. Idioma: ${idioma==='en'?'English':'Español'}. Redacta un estado del arte riguroso citando las referencias disponibles con [N]. Incluye: situación actual del campo, principales tendencias, gaps de conocimiento y cómo el proyecto propuesto los aborda.`,
-      `CONTEXTO:\n${ctx}\n\nREFERENCIAS DISPONIBLES:\n${refsBib}\n\nPREGUNTAS CLAVE A RESPONDER:\n${ctxJson.preguntas_clave.join('\n')}`,apiKey,2000);
-    setMsg('stateofart','✓ Estado del arte redactado','success');
-    setAgent('stateofart','done');
-
-    // ── AGENTE 4: ESTRATEGA ───────────────────────────────────────────────────
-    setAgent('strategy','running'); setGlobal(36,'Agente 4: Definiendo estrategia para la convocatoria…');
-    setMsg('strategy',`Analizando criterios de ${cfg.label}…`,'active');
-    const estrategia=await callGPT(
-      `Eres un experto en financiación de I+D con amplia experiencia en ${cfg.label}. Define la estrategia óptima para maximizar la puntuación de esta propuesta según los criterios de evaluación. Responde JSON: {"angulo_principal":"","puntos_diferenciadores":["p1"],"keywords_convocatoria":["k1"],"tono":"academico|empresarial|mixto","estructura_recomendada":["sección1"]}`,
-      `${ctx}\n\nFORTALEZAS:\n${ctxJson.fortalezas.join('\n')}\n\nDEBILIDADES:\n${ctxJson.debilidades.join('\n')}`,apiKey,1000);
-    const estratJson=parseJSON(estrategia,{angulo_principal:'',puntos_diferenciadores:[],keywords_convocatoria:[],tono:'mixto',estructura_recomendada:[]});
-    setMsg('strategy',`✓ Estrategia: ${estratJson.angulo_principal.substring(0,60)}…`,'success');
-    setAgent('strategy','done');
-
-    // ── AGENTE 5: REDACTOR PRINCIPAL ──────────────────────────────────────────
-    setAgent('writer','running'); setGlobal(50,'Agente 5: Redactando secciones principales…');
-    setMsg('writer','Generando memoria sección por sección…','active');
-
-    const seccionesGeneradas={};
-    const secsParaRedactar=secList.filter(s=>s!=='estado_arte'); // estado_arte ya generado
-
-    for(const sec of secsParaRedactar){
-      setMsg('writer',`Redactando: ${SEC_LABELS[sec]}…`,'active');
-      const contenido=await callGPT(
-        `Eres un redactor experto en memorias de proyectos ${cfg.label}. Idioma: ${idioma==='en'?'English':'Español'}. Tono: ${estratJson.tono}. Redacta la sección "${SEC_LABELS[sec]}" de forma rigurosa, convincente y adaptada a los criterios de evaluación. Cita referencias cuando sea relevante usando [N]. Extiéndete lo necesario para ser convincente pero sin repetición.`,
-        `CONTEXTO:\n${ctx}\n\nANGULO PRINCIPAL: ${estratJson.angulo_principal}\nPUNTOS DIFERENCIADORES: ${estratJson.puntos_diferenciadores.join(', ')}\n\nESTADO DEL ARTE:\n${estadoArte.substring(0,1500)}\n\nREFERENCIAS:\n${refsBib}`,
-        apiKey,2000);
-      seccionesGeneradas[sec]=contenido;
+    ag('biblio', 'run', 'Buscando en Semantic Scholar, OpenAlex, Europe PMC, PubMed, Crossref y arXiv…', .12);
+    const bruto = await buscaBiblio(c.consultas_en || [$('area').value || $('titulo').value], m => ag('biblio', 'run', m));
+    ag('biblio', 'run', `${bruto.length} encontradas. Leyendo los resúmenes para quedarse con las pertinentes…`, .2);
+    let refs = [];
+    if(bruto.length){
+      const f = await ia(`Seleccionas bibliografía para una memoria de proyecto. Te quedas SOLO con los trabajos directamente pertinentes para el proyecto (no basta con compartir palabras). Para cada uno, di en una frase qué puede respaldar en la memoria según su título y resumen.`, `PROYECTO:\n${info.slice(0, 3000)}\n\nCANDIDATOS:\n${bruto.map((r,i) => `${i}. ${r.title} (${r.year}). ${(r.abstract || '').slice(0, 350)}`).join('\n')}\n\nDevuelve {"seleccion":[{"i":0,"uso":"qué respalda"}]} con 12 como máximo.`, {json:true, max:1500});
+      refs = (f.seleccion || []).filter(s => bruto[+s.i]).slice(0, 12).map(s => ({...bruto[+s.i], uso:s.uso || ''}));
+      if(!refs.length) refs = bruto.slice(0, 8).map(r => ({...r, uso:''}));
     }
-    if(secList.includes('estado_arte')) seccionesGeneradas['estado_arte']=estadoArte;
-    setMsg('writer',`✓ ${Object.keys(seccionesGeneradas).length} secciones redactadas`,'success');
-    setAgent('writer','done');
+    res.refs = refs; pintaRefsLive(refs);
+    ag('biblio', 'done', `${refs.length} pertinentes de ${bruto.length} encontradas`, .26);
 
-    // ── AGENTE 6: IMPACTO ─────────────────────────────────────────────────────
-    setAgent('impact','running'); setGlobal(66,'Agente 6: Reforzando argumentos de impacto…');
-    setMsg('impact','Potenciando sección de impacto y transferencia…','active');
-    if(seccionesGeneradas['impacto']){
-      const impactoMejorado=await callGPT(
-        `Eres un experto en argumentación de impacto científico, económico y social para convocatorias ${cfg.label}. Mejora y amplía la sección de impacto para hacerla más convincente. Añade indicadores cuantificables, beneficiarios concretos y alineación con políticas públicas cuando corresponda. Idioma: ${idioma==='en'?'English':'Español'}.`,
-        `SECCIÓN ACTUAL:\n${seccionesGeneradas['impacto']}\n\nCONTEXTO:\n${ctx}`,apiKey,1500);
-      seccionesGeneradas['impacto']=impactoMejorado;
+    const lr = listaRefs(refs) || '(ninguna)';
+    ag('arte', 'run', 'Sintetizando la literatura…', .28);
+    const arte = secs.includes('estado_arte') || secs.includes('introduccion') ? await ia(`Eres investigador experto. Redactas el estado del arte de una memoria para ${$('convNombre').value}: situación del campo, tendencias, lagunas de conocimiento y cómo las aborda el proyecto. ${NOINV()}`, `INFORMACIÓN DEL PROYECTO:\n${info}\n\nLISTA DE REFERENCIAS:\n${lr}\n\nPREGUNTAS CLAVE: ${(c.preguntas_clave || []).join(' | ')}`, {max:2200}) : '';
+    if(secs.includes('estado_arte')) res.secciones.estado_arte = arte;
+    ag('arte', 'done', arte ? 'Estado del arte redactado' : 'No se ha pedido esta sección', .34);
+
+    ag('estrategia', 'run', 'Analizando los criterios de evaluación…', .36);
+    const e = await ia(`Eres experto en financiación de I+D con experiencia en ${$('convNombre').value}. Defines la estrategia para puntuar alto con estos criterios, sin exagerar ni prometer lo que el proyecto no sostiene.`, `${info}\n\nFORTALEZAS: ${(c.fortalezas || []).join(' | ')}\nDEBILIDADES: ${(c.debilidades || []).join(' | ')}\n\nDevuelve {"angulo":"enfoque principal","diferenciadores":["..."],"como_cubrir_debilidades":["..."],"tono":"académico|empresarial|mixto"}`, {json:true, max:1000});
+    res.estrategia = e; ag('estrategia', 'done', e.angulo ? 'Enfoque: ' + e.angulo.slice(0, 90) : 'Estrategia definida', .42);
+
+    const pend = secs.filter(s => s !== 'estado_arte');
+    for(let i = 0; i < pend.length; i++){
+      const s = pend[i]; ag('redactor', 'run', `Redactando «${SEC_T[s]}» (${i + 1} de ${pend.length})…`, .44 + .26 * i / Math.max(1, pend.length));
+      res.secciones[s] = await ia(`Eres redactor experto de memorias para ${$('convNombre').value}. Tono ${e.tono || 'mixto'}. Redactas la sección «${SEC_T[s]}», rigurosa, concreta y convincente, orientada a los criterios de evaluación, sin repetir lo que irá en otras secciones. ${NOINV()}`, `INFORMACIÓN DEL PROYECTO:\n${info}\n\nENFOQUE: ${e.angulo || ''}\nDIFERENCIADORES: ${(e.diferenciadores || []).join(' | ')}\nCÓMO CUBRIR LAS DEBILIDADES: ${(e.como_cubrir_debilidades || []).join(' | ')}\n\nESTADO DEL ARTE (para no contradecirlo):\n${arte.slice(0, 1500)}\n\nLISTA DE REFERENCIAS:\n${lr}\n\nRedacta solo el texto de la sección «${SEC_T[s]}».`, {max:2000});
     }
-    setMsg('impact','✓ Impacto reforzado','success');
-    setAgent('impact','done');
+    ag('redactor', 'done', `${Object.keys(res.secciones).length} secciones redactadas`, .7);
 
-    // ── AGENTE 7: ADECUACIÓN ──────────────────────────────────────────────────
-    setAgent('adequacy','running'); setGlobal(76,'Agente 7: Verificando adecuación a la convocatoria…');
-    setMsg('adequacy',`Comprobando alineación con criterios ${cfg.label}…`,'active');
-    const fullMemoria=Object.values(seccionesGeneradas).join('\n\n');
-    const adecuacion=await callGPT(
-      `Eres un evaluador experto de ${cfg.label}. Evalúa la memoria generada y sugiere mejoras específicas para maximizar la puntuación. Responde JSON: {"puntuacion_global":85,"criterios":[{"nombre":"Calidad científica","puntuacion":80,"comentario":"…"}],"mejoras_urgentes":["m1"],"fortalezas_detectadas":["f1"]}`,
-      `CRITERIOS DE LA CONVOCATORIA: ${cfg.criterios}\n\nMEMORIA (extracto):\n${fullMemoria.substring(0,5000)}`,apiKey,1200);
-    const adecJson=parseJSON(adecuacion,{puntuacion_global:75,criterios:[],mejoras_urgentes:[],fortalezas_detectadas:[]});
-    setMsg('adequacy',`✓ Puntuación estimada: ${adecJson.puntuacion_global}/100`,'success');
-    setAgent('adequacy','done');
+    ag('impacto', 'run', 'Reforzando el impacto…', .72);
+    if(res.secciones.impacto){ res.secciones.impacto = await ia(`Eres experto en argumentar el impacto científico, social y económico para ${$('convNombre').value}. Mejoras la sección: beneficiarios concretos, vías de transferencia e indicadores con su método de medida. Los VALORES de los indicadores solo si están en la información del proyecto; si no, [COMPLETAR: valor objetivo]. ${NOINV()}`, `INFORMACIÓN DEL PROYECTO:\n${info}\n\nSECCIÓN ACTUAL:\n${res.secciones.impacto}\n\nLISTA DE REFERENCIAS:\n${lr}\n\nDevuelve solo la sección mejorada.`, {max:1800}); ag('impacto', 'done', 'Impacto reforzado', .76); }
+    else ag('impacto', 'done', 'No se ha pedido la sección de impacto', .76);
 
-    // ── AGENTE 8: COHERENCIA ──────────────────────────────────────────────────
-    setAgent('coherence','running'); setGlobal(86,'Agente 8: Verificando coherencia interna…');
-    setMsg('coherence','Comprobando consistencia entre secciones…','active');
-    if(adecJson.mejoras_urgentes.length>0){
-      setMsg('coherence',`Aplicando ${adecJson.mejoras_urgentes.length} mejoras urgentes…`,'active');
-      for(const mejora of adecJson.mejoras_urgentes.slice(0,3)){
-        const secAfectada=Object.keys(seccionesGeneradas)[0];
-        const mejorado=await callGPT(
-          `Eres un editor experto. Aplica la siguiente mejora a la sección más relevante de la memoria. Mejora: "${mejora}". Idioma: ${idioma==='en'?'English':'Español'}. Devuelve solo el texto mejorado de la sección, sin explicaciones.`,
-          `SECCIÓN ACTUAL:\n${seccionesGeneradas[secAfectada]?.substring(0,2000)||''}`,apiKey,1500);
-        if(mejorado.length>100) seccionesGeneradas[secAfectada]=mejorado;
-      }
+    ag('adecuacion', 'run', 'Valorando la memoria con los criterios…', .78);
+    const a = await ia(`Eres evaluador de ${$('convNombre').value}. Valoras la memoria con los criterios de la convocatoria, con exigencia. La valoración es orientativa. Para cada mejora, indica a qué sección se aplica, usando exactamente una de estas claves: ${Object.keys(res.secciones).join(', ')}.`, `CRITERIOS: ${$('convCrit').value}\n\nMEMORIA:\n${Object.entries(res.secciones).map(([k,t]) => `## ${k}\n${t}`).join('\n\n').slice(0, 16000)}\n\nDevuelve {"criterios":[{"nombre":"...","valoracion":70,"comentario":"..."}],"fortalezas":["..."],"mejoras":[{"seccion":"clave","mejora":"qué cambiar, en concreto"}]}`, {json:true, max:1800});
+    res.valoracion = a; ag('adecuacion', 'done', `${(a.criterios || []).length} criterios valorados, ${(a.mejoras || []).length} mejoras propuestas`, .84);
+
+    ag('coherencia', 'run', 'Aplicando las mejoras en su sección…', .86);
+    const porSec = {}; (a.mejoras || []).forEach(m => { const k = res.secciones[m.seccion] ? m.seccion : null; if(k) (porSec[k] = porSec[k] || []).push(m.mejora); });
+    for(const [k, ms] of Object.entries(porSec).slice(0, 5)){
+      ag('coherencia', 'run', `Mejorando «${SEC_T[k]}»…`);
+      const nuevo = await ia(`Eres editor de memorias de proyectos. Aplicas las mejoras indicadas a la sección, sin cambiar lo que funciona. ${NOINV()}`, `INFORMACIÓN DEL PROYECTO:\n${info}\n\nMEJORAS:\n- ${ms.join('\n- ')}\n\nSECCIÓN «${SEC_T[k]}»:\n${res.secciones[k]}\n\nLISTA DE REFERENCIAS:\n${lr}\n\nDevuelve solo la sección mejorada.`, {max:2000});
+      if(nuevo.length > 150) res.secciones[k] = nuevo;
     }
-    setMsg('coherence','✓ Coherencia verificada y ajustada','success');
-    setAgent('coherence','done');
+    const co = await ia(`Buscas contradicciones entre las secciones de una memoria: duraciones, objetivos que no tienen tareas, tareas sin objetivo, cifras distintas para lo mismo, promesas del resumen que no se desarrollan.`, `${Object.entries(res.secciones).map(([k,t]) => `## ${SEC_T[k]}\n${t}`).join('\n\n').slice(0, 16000)}\n\nDevuelve {"contradicciones":[{"donde":"secciones","problema":"..."}]}`, {json:true, max:1000});
+    res.coherencia = co.contradicciones || [];
+    ag('coherencia', 'done', `${Object.keys(porSec).length} secciones mejoradas · ${res.coherencia.length} contradicciones detectadas`, .93);
 
-    // ── AGENTE 9: QA ──────────────────────────────────────────────────────────
-    setAgent('qa','running'); setGlobal(94,'Agente 9: Control de calidad final…');
-    setMsg('qa','Verificación final de la memoria…','active');
-    const qaResult=await callGPT(
-      `Eres el responsable de calidad de una consultora de proyectos I+D. Genera un informe ejecutivo de la memoria: puntos fuertes, aspectos a mejorar manualmente, y recomendaciones finales. Idioma: ${idioma==='en'?'English':'Español'}. Sé conciso y directo.`,
-      `PUNTUACIÓN ESTIMADA: ${adecJson.puntuacion_global}/100\nFORTALEZAS: ${adecJson.fortalezas_detectadas.join(', ')}\nCONVOCATORIA: ${cfg.label}\nSECCIONES GENERADAS: ${Object.keys(seccionesGeneradas).map(s=>SEC_LABELS[s]).join(', ')}`,apiKey,800);
-    setMsg('qa',`✓ QA completado — puntuación estimada: ${adecJson.puntuacion_global}/100`,'success');
-    setAgent('qa','done');
-
-    setGlobal(100,'✓ Pipeline completado — memoria lista');
-    resultado={secciones:seccionesGeneradas,refs:refsEncontradas,adecuacion:adecJson,qaResult,meta:{conv:convActiva,convLabel:cfg.label,titulo,entidad,area,ip,duracion,idioma,secList}};
-    document.getElementById('btnVerMemoria').style.display='block';
-
-  }catch(e){
-    showToast('Error en el pipeline: '+e.message,'error');
-    console.error(e);
+    ag('qa', 'run', 'Informe final…', .95);
+    const chk = revisar(res);
+    res.qa = await ia(`Eres responsable de calidad de una oficina de proyectos. Redactas un informe breve para quien firma la memoria: qué está sólido, qué debe completar o verificar a mano y tres recomendaciones antes de enviarla. Directo y concreto. Escribe en ${IDIOMA()}.`, `CONVOCATORIA: ${$('convNombre').value}\nVALORACIÓN: ${JSON.stringify(a.criterios || [])}\nDATOS QUE FALTABAN: ${(c.datos_faltantes || []).join(' | ')}\nMARCAS [COMPLETAR]: ${chk.completar.length}\nCIFRAS SIN RESPALDO: ${chk.cifras.map(x => x.cifra).join(', ') || 'ninguna'}\nCONTRADICCIONES: ${res.coherencia.map(x => x.problema).join(' | ') || 'ninguna'}`, {max:900});
+    ag('qa', 'done', 'Memoria lista', 1);
+    G.res = res; corriendo = false; guardar(); updateNav();
+    $('pipeMsg').textContent = 'Terminado. Revisa las marcas antes de usar el texto.';
+    setTimeout(() => go(5), 700);
+  }catch(err){
+    corriendo = false; updateNav(); toast(err.message, 7000);
+    const act = AG.find(([k]) => $('ag-' + k)?.classList.contains('run')); if(act) ag(act[0], 'err', 'Error: ' + err.message);
+    $('pipeMsg').innerHTML = `<b>Se ha detenido:</b> ${esc(err.message)}. Vuelve a las secciones y pulsa de nuevo para reintentar.`;
   }
 }
+function pintaRefsLive(refs){ $('refsLive').innerHTML = refs.length ? refs.map((r,i) => `<div class="ref"><span class="n">[${i + 1}]</span> ${esc(r.title)} <small>${esc(r.authors || '')} (${esc(r.year || 's. f.')}) · ${esc(r.src)}${r.uso ? ' — ' + esc(r.uso) : ''}</small></div>`).join('') : '<p class="help">No se encontraron trabajos pertinentes. La memoria no citará bibliografía.</p>'; }
 
-// ─── RENDER MEMORIA ───────────────────────────────────────────────────────────
-function renderMemoria(){
-  if(!resultado)return;
-  const m=resultado.meta;
-  document.getElementById('convBadgeText').textContent=`${resultado.meta.convLabel} · ${m.idioma==='en'?'English':'Español'} · ${m.duracion} meses`;
-
-  // Score
-  const ad=resultado.adecuacion;
-  if(ad.criterios?.length>0){
-    document.getElementById('scoreSection').style.display='block';
-    const colors=['#1a6fad','#27ae60','#e67e22','#c0392b','#8e44ad'];
-    document.getElementById('scoreItems').innerHTML=
-      `<div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.7rem;padding-bottom:.7rem;border-bottom:1px solid #dce8f4;">
-        <span style="font-size:1.6rem;font-weight:800;color:#0a2240;">${ad.puntuacion_global}</span>
-        <div style="flex:1"><div style="font-size:.78rem;font-weight:700;color:#3a5070;margin-bottom:.25rem;">Puntuación global estimada / 100</div>
-        <div class="score-bar"><div class="score-fill" style="width:${ad.puntuacion_global}%;background:#1a6fad;"></div></div></div></div>`+
-      ad.criterios.map((c,i)=>`<div style="margin-bottom:.55rem;">
-        <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:.25rem;">
-          <span style="font-weight:600;color:#3a5070;">${c.nombre}</span>
-          <span style="font-weight:700;color:${colors[i%colors.length]};">${c.puntuacion}/100</span>
-        </div>
-        <div class="score-bar"><div class="score-fill" style="width:${c.puntuacion}%;background:${colors[i%colors.length]};"></div></div>
-        <div style="font-size:.72rem;color:#6a80a0;margin-top:.2rem;">${c.comentario||''}</div>
-      </div>`).join('');
-  }
-
-  // Tabs y panes
-  const tabsEl=document.getElementById('resultTabs');
-  const panesEl=document.getElementById('resultPanes');
-  tabsEl.innerHTML=''; panesEl.innerHTML='';
-
-  const secOrden=resultado.meta.secList;
-  secOrden.forEach((sec,idx)=>{
-    if(!resultado.secciones[sec])return;
-    const tab=document.createElement('button');
-    tab.className='result-tab'+(idx===0?' active':'');
-    tab.textContent=SEC_LABELS[sec]||sec;
-    tab.onclick=()=>{
-      document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('pane-'+sec).classList.add('active');
-    };
-    tabsEl.appendChild(tab);
-
-    const pane=document.createElement('div');
-    pane.className='result-pane'+(idx===0?' active':'');
-    pane.id='pane-'+sec;
-    pane.innerHTML=`<div class="mem-section">
-      <div class="mem-section-title"><i class="fa-solid fa-file-lines" style="color:#1a6fad;font-size:.9rem;"></i>${SEC_LABELS[sec]||sec}</div>
-      <div class="mem-section-body">${escHtml(resultado.secciones[sec])}</div>
-    </div>`;
-    panesEl.appendChild(pane);
+/* ══════════ COMPROBACIONES DETERMINISTAS ══════════ */
+const CITA = /\[(\d+(?:\s*[,–-]\s*\d+)*)\]/g;
+const numsCita = s => { const out = []; s.split(/\s*,\s*/).forEach(p => { const m = p.match(/(\d+)\s*[–-]\s*(\d+)/); if(m){ for(let i = +m[1]; i <= +m[2] && i - +m[1] < 30; i++) out.push(i); } else out.push(+p); }); return out; };
+const soloDig = s => s.replace(/[^\d]/g, '');
+function corpus(){ return [CAMPOS.map(k => $(k).value).join(' '), G.docs.map(d => d.texto).join(' '), (G.res?.refs || []).map(r => r.title + ' ' + r.year + ' ' + (r.abstract || '')).join(' ')].join(' '); }
+function revisar(res){
+  const cor = corpus(), corDig = ' ' + cor.replace(/(\d)\.(?=\d{3}\b)/g, '$1').replace(/(\d),(\d)/g, '$1.$2') + ' ';
+  const out = {completar:[], citasMal:[], cifras:[], citadas:new Set()};
+  Object.entries(res.secciones).forEach(([k,t]) => {
+    (t.match(/\[COMPLETAR[^\]]*\]/gi) || []).forEach(m => out.completar.push({sec:k, txt:m}));
+    for(const m of t.matchAll(CITA)) numsCita(m[1]).forEach(n => { if(n < 1 || n > res.refs.length) out.citasMal.push({sec:k, txt:m[0]}); else out.citadas.add(n); });
+    const sinCitas = t.replace(CITA, ' ').replace(/\[COMPLETAR[^\]]*\]/gi, ' ').replace(/\b(?:mes(?:es)?|años?|month?s?|years?|M)\s*\d+(?:\s*(?:[-–]|a|al|to)\s*\d+)?/gi, ' ');   /* el cronograma lo diseña el redactor */
+    for(const m of sinCitas.matchAll(/(?<![\w.,])(\d{1,3}(?:\.\d{3})+|\d+(?:[.,]\d+)?)(\s?(?:%|€|M€|k€|millones|euros|meses|años|pacientes|participantes|hectáreas|ha|kWh|TRL))?/g)){
+      const num = m[1], suf = (m[2] || '').trim(), n = num.replace(/\.(?=\d{3}\b)/g, '').replace(',', '.');
+      if(!suf && soloDig(num).length < 2) continue;
+      if(/^(19|20)\d\d$/.test(n)) continue;                 /* años */
+      if(new RegExp('(^|[^\\d.,])' + n.replace(/\./g, '\\.') + '(?![\\d]|[.,]\\d)').test(corDig)) continue;   /* número completo, no una parte de otro */
+      if(!out.cifras.find(x => x.cifra === m[0].trim() && x.sec === k)) out.cifras.push({sec:k, cifra:m[0].trim()});
+    }
   });
-
-  // QA tab
-  if(resultado.qaResult){
-    const tab=document.createElement('button');
-    tab.className='result-tab';
-    tab.innerHTML='<i class="fa-solid fa-star" style="margin-right:.3rem;color:#f39c12;"></i>Informe QA';
-    tab.onclick=()=>{
-      document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
-      document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('pane-qa').classList.add('active');
-    };
-    tabsEl.appendChild(tab);
-    const pane=document.createElement('div');
-    pane.className='result-pane'; pane.id='pane-qa';
-    pane.innerHTML=`<div class="mem-section" style="border-left-color:#f39c12;background:#fffbf0;">
-      <div class="mem-section-title" style="color:#e67e22;"><i class="fa-solid fa-star" style="color:#f39c12;font-size:.9rem;"></i>Informe de calidad</div>
-      <div class="mem-section-body">${escHtml(resultado.qaResult)}</div>
-    </div>`;
-    panesEl.appendChild(pane);
-  }
-
-  // Bibliografía
-  if(resultado.refs.length>0){
-    document.getElementById('bibSection').style.display='block';
-    document.getElementById('bibList').innerHTML=resultado.refs.slice(0,20).map((r,i)=>
-      `<div style="font-size:.83rem;padding:.5rem .8rem;border-radius:8px;background:#f8fafd;border:1px solid #dce8f4;margin-bottom:.4rem;">
-        <span style="font-weight:700;color:#1a6fad;">[${i+1}]</span>
-        <span style="color:#3a5070;"> ${r.authors||''} (${r.year||'s.f.'}).</span>
-        <em style="color:#0d1f35;"> ${r.title||''}</em>.${r.doi?` <a href="https://doi.org/${r.doi}" target="_blank" style="color:#1a6fad;font-size:.8rem;">DOI</a>`:''}
-        <span class="chip" style="margin-left:.3rem;font-size:.65rem;">${r.src}</span>
-      </div>`).join('');
-  }
+  return out;
+}
+function marca(t, chk, sec){
+  let h = esc(t);
+  h = h.replace(/\[COMPLETAR[^\]]*\]/gi, x => `<mark class="comp">${x}</mark>`);
+  h = h.replace(CITA, (x, g) => numsCita(g).some(n => n < 1 || n > G.res.refs.length) ? `<mark class="citabad" title="Esta referencia no existe en la lista">${x}</mark>` : `<span class="cita">${x}</span>`);
+  chk.cifras.filter(c => c.sec === sec).forEach(c => { h = h.split(esc(c.cifra)).join(`<mark class="cifra" title="Esta cifra no aparece en lo que aportaste: verifícala">${esc(c.cifra)}</mark>`); });
+  return h;
 }
 
-function setResultTab(pane,btn){
-  document.querySelectorAll('.result-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.result-pane').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active'); document.getElementById('pane-'+pane).classList.add('active');
+/* ══════════ PASO 5 · MEMORIA ══════════ */
+function pintaMemoria(){
+  const R = G.res; if(!R) return;
+  const chk = revisar(R), m = R.meta;
+  $('memTitle').textContent = m.titulo || 'La memoria';
+  $('memMeta').textContent = `${m.convNombre} · ${({es:'español', en:'inglés', ca:'catalán'})[m.idioma]} · ${m.duracion} meses · ${Object.keys(R.secciones).length} secciones`;
+  const avisos = [];
+  if(chk.completar.length) avisos.push(`<b>${chk.completar.length} dato(s) por completar</b>, marcados en amarillo: los agentes no los tenían y no los han inventado.`);
+  if(chk.cifras.length) avisos.push(`<b>${chk.cifras.length} cifra(s) que no aparecen en lo que aportaste</b>, marcadas en rojo: ${chk.cifras.slice(0, 6).map(c => esc(c.cifra)).join(', ')}${chk.cifras.length > 6 ? '…' : ''}. Verifícalas o bórralas.`);
+  if(chk.citasMal.length) avisos.push(`<b>${chk.citasMal.length} cita(s) a referencias que no existen</b> en la lista: ${[...new Set(chk.citasMal.map(c => c.txt))].join(', ')}.`);
+  (R.coherencia || []).forEach(c => avisos.push(`<b>Posible contradicción</b> (${esc(c.donde)}): ${esc(c.problema)}`));
+  $('checks').innerHTML = avisos.length ? `<div class="aviso"><ul style="margin:0;padding-left:18px">${avisos.map(a => `<li style="margin-bottom:4px">${a}</li>`).join('')}</ul></div>` : `<div class="okbox">${ico('check')}<span>Sin datos por completar, sin cifras sin respaldo y con todas las citas correctas.</span></div>`;
+  $('memSecs').innerHTML = m.secs.filter(s => R.secciones[s] != null).map(s => `<div class="memsec" id="ms-${s}"><header><h3>${SEC_T[s]}</h3><span class="help" style="margin:0">${R.secciones[s].split(/\s+/).length} palabras</span><button class="btn btn-ghost btn-sm" type="button" data-ed="${s}">${ico('pencil')}Editar</button><button class="btn btn-ghost btn-sm" type="button" data-re="${s}">${ico('refresh')}Rehacer</button></header><div class="body">${marca(R.secciones[s], chk, s)}</div></div>`).join('');
+  $$('#memSecs [data-ed]').forEach(b => b.onclick = () => editar(b.dataset.ed));
+  $$('#memSecs [data-re]').forEach(b => b.onclick = () => rehacer(b.dataset.re, b));
+  const v = R.valoracion || {};
+  $('valor').innerHTML = (v.criterios || []).length ? (v.criterios || []).map(c => `<div class="crit-b"><div class="h"><span>${esc(c.nombre)}</span><span>${+c.valoracion || 0}/100</span></div><div class="t"><i style="width:${+c.valoracion || 0}%"></i></div><small>${esc(c.comentario || '')}</small></div>`).join('') + '<p class="help">Es la opinión de un agente con los criterios, no una predicción de la nota de la agencia.</p>' : '<p class="help">Sin valoración.</p>';
+  $('qa').textContent = R.qa || '';
+  $('refs').innerHTML = R.refs.length ? R.refs.map((r,i) => `<div class="ref"><span class="n">[${i + 1}]</span> ${esc(r.authors || '')} (${esc(r.year || 's. f.')}). ${esc(r.title)}.${r.doi ? ` <a href="https://doi.org/${esc(r.doi)}" target="_blank" rel="noopener">DOI</a>` : r.url ? ` <a href="${esc(r.url)}" target="_blank" rel="noopener">enlace</a>` : ''} <small>${chk.citadas.has(i + 1) ? '<b style="color:var(--forjado)">citada</b>' : 'no citada: no irá en la bibliografía exportada'} · ${esc(r.src)}${r.uso ? ' · ' + esc(r.uso) : ''}</small></div>`).join('') : '<p class="help">Sin bibliografía.</p>';
+}
+function editar(s){
+  const box = $('ms-' + s), body = box.querySelector('.body'), btn = box.querySelector('[data-ed]');
+  if(btn.dataset.on){ G.res.secciones[s] = box.querySelector('textarea').value; guardar(); pintaMemoria(); return; }
+  body.outerHTML = `<textarea aria-label="${SEC_T[s]}">${esc(G.res.secciones[s])}</textarea>`; btn.dataset.on = '1'; btn.innerHTML = ico('check') + 'Guardar';
+  box.querySelector('textarea').focus();
+}
+async function rehacer(s, b){
+  if(G._demo) return toast('Es la memoria de ejemplo: prepara una propia para poder rehacer secciones');
+  const q = prompt(`¿Qué quieres cambiar en «${SEC_T[s]}»? (déjalo vacío para una versión nueva)`); if(q === null) return;
+  b.disabled = true; b.innerHTML = '<span class="spin"></span> Rehaciendo';
+  try{ G.res.secciones[s] = await ia(`Eres redactor experto de memorias para ${G.res.meta.convNombre}. Rehaces la sección «${SEC_T[s]}». ${NOINV()}`, `INFORMACIÓN DEL PROYECTO:\n${infoProyecto()}\n\nVERSIÓN ACTUAL:\n${G.res.secciones[s]}\n\n${q ? 'CAMBIOS PEDIDOS: ' + q : 'Escribe una versión nueva y mejor.'}\n\nLISTA DE REFERENCIAS:\n${listaRefs(G.res.refs)}\n\nDevuelve solo la sección.`, {max:2000}); guardar(); pintaMemoria(); toast('Sección rehecha'); }
+  catch(e){ toast(e.message); b.disabled = false; b.innerHTML = ico('refresh') + 'Rehacer'; }
 }
 
-function escHtml(t){return(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-async function regenerar(){setStep(4);buildAgentsList();await ejecutarPipeline();}
-
-// ─── EXPORT WORD ──────────────────────────────────────────────────────────────
-async function exportarWord(){
-  if(!resultado)return;
-  const btn=document.getElementById('btnWord');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Generando…';
-  const {Document,Packer,Paragraph,TextRun,HeadingLevel,BorderStyle}=docx;
-  const m=resultado.meta;
-  const ch=[];
-  const sep=()=>new Paragraph({children:[],border:{bottom:{style:BorderStyle.SINGLE,size:4,color:'C8D8E8',space:4}},spacing:{before:200,after:200}});
-  const h1=(t)=>new Paragraph({heading:HeadingLevel.HEADING_1,children:[new TextRun({text:t,bold:true,size:32,font:'Arial',color:'0A2240'})]});
-  const h2=(t)=>new Paragraph({heading:HeadingLevel.HEADING_2,children:[new TextRun({text:t,bold:true,size:24,font:'Arial',color:'1A6FAD'})]});
-  const p=(t)=>new Paragraph({children:[new TextRun({text:t,font:'Georgia',size:20})],spacing:{after:80}});
-
-  ch.push(h1(m.titulo||'Memoria de Proyecto'));
-  ch.push(new Paragraph({children:[new TextRun({text:`${m.convLabel} · ${m.entidad||''} · ${m.idioma==='en'?'English':'Español'} · ${new Date().toLocaleDateString('es-ES')}`,size:20,font:'Arial',color:'555555',italics:true})]}));
-  ch.push(sep());
-
-  resultado.meta.secList.forEach(sec=>{
-    if(!resultado.secciones[sec])return;
-    ch.push(h2(SEC_LABELS[sec]||sec));
-    resultado.secciones[sec].split('\n').forEach(line=>{
-      if(line.trim())ch.push(p(line)); else ch.push(new Paragraph({children:[]}));
-    });
-    ch.push(sep());
-  });
-
-  if(resultado.refs.length>0){
-    ch.push(h2('Referencias bibliográficas'));
-    resultado.refs.slice(0,20).forEach((r,i)=>ch.push(p(`[${i+1}] ${r.authors||''} (${r.year||'s.f.'}). ${r.title||''}.${r.doi?' DOI: '+r.doi:''}`)));
-  }
-
-  const doc2=new Document({
-    styles:{default:{document:{run:{font:'Arial',size:20}}},paragraphStyles:[
-      {id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:32,bold:true,font:'Arial',color:'0A2240'},paragraph:{spacing:{before:300,after:200},outlineLevel:0}},
-      {id:'Heading2',name:'Heading 2',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:24,bold:true,font:'Arial',color:'1A6FAD'},paragraph:{spacing:{before:240,after:120},outlineLevel:1}}
-    ]},
-    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:ch}]
-  });
-  const buf=await Packer.toBuffer(doc2);
-  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`GrantWriter_${(m.titulo||'memoria').replace(/\s+/g,'_').substring(0,30)}.docx`;
-  a.click();URL.revokeObjectURL(url);
-  btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-file-word"></i> Descargar Word';
-  showToast('Word descargado','success');
+/* ══════════ EXPORTACIÓN (citas renumeradas por orden de aparición) ══════════ */
+function renumera(){
+  const R = G.res, orden = [], mapa = {};
+  R.meta.secs.forEach(s => { for(const m of (R.secciones[s] || '').matchAll(CITA)) numsCita(m[1]).forEach(n => { if(n >= 1 && n <= R.refs.length && !(n in mapa)){ mapa[n] = orden.length + 1; orden.push(n); } }); });
+  const secciones = {}; R.meta.secs.forEach(s => { if(R.secciones[s] != null) secciones[s] = R.secciones[s].replace(CITA, (x, g) => { const ns = numsCita(g).filter(n => mapa[n]).map(n => mapa[n]); return ns.length ? '[' + [...new Set(ns)].sort((a,b) => a - b).join(', ') + ']' : x; }); });
+  return {secciones, refs:orden.map(n => R.refs[n - 1])};
 }
+const refTxt = (r,i) => `[${i + 1}] ${r.authors || 's. a.'} (${r.year || 's. f.'}). ${r.title}.${r.doi ? ' https://doi.org/' + r.doi : r.url ? ' ' + r.url : ''}`;
+const nombreArch = () => 'Memoria_' + (G.res.meta.titulo || 'proyecto').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '_').slice(0, 40);
+function comoMarkdown(){ const {secciones, refs} = renumera(), m = G.res.meta; return `# ${m.titulo || 'Memoria del proyecto'}\n\n*${m.convNombre}${m.entidad ? ' · ' + m.entidad : ''} · ${m.duracion} meses*\n\n` + Object.entries(secciones).map(([k,t]) => `## ${SEC_T[k]}\n\n${t}`).join('\n\n') + (refs.length ? `\n\n## Referencias\n\n${refs.map(refTxt).join('\n\n')}` : '') + '\n'; }
+$('expMd').onclick = () => dl(nombreArch() + '.md', comoMarkdown(), 'text/markdown');
+$('expCopy').onclick = () => navigator.clipboard.writeText(comoMarkdown().replace(/^#+ /gm, '').replace(/\*/g, '')).then(() => toast('Memoria copiada'));
+$('expPrint').onclick = () => { const {secciones, refs} = renumera(), m = G.res.meta, w = window.open('', '_blank'); if(!w) return toast('Permite las ventanas emergentes para imprimir'); w.document.write(`<html><head><meta charset="utf-8"><title>${esc(m.titulo)}</title><style>body{font-family:Georgia,serif;font-size:11pt;line-height:1.6;max-width:720px;margin:30px auto;color:#111}h1{font-size:18pt}h2{font-size:13pt;border-bottom:1px solid #999;margin-top:22px}p{white-space:pre-wrap}.r{font-size:9.5pt}</style></head><body><h1>${esc(m.titulo)}</h1><p><i>${esc(m.convNombre)} · ${esc(m.duracion)} meses</i></p>${Object.entries(secciones).map(([k,t]) => `<h2>${SEC_T[k]}</h2><p>${esc(t)}</p>`).join('')}${refs.length ? '<h2>Referencias</h2>' + refs.map((r,i) => `<p class="r">${esc(refTxt(r,i))}</p>`).join('') : ''}</body></html>`); w.document.close(); setTimeout(() => w.print(), 400); };
+$('expDocx').onclick = async () => {
+  try{
+    if(!window.docx) await cargaLib(['https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js','https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js']);
+    const D = window.docx, {secciones, refs} = renumera(), m = G.res.meta;
+    const P = (t, o = {}) => new D.Paragraph({heading:o.h, spacing:{after:o.after ?? 120}, children:[new D.TextRun({text:t, font:'Arial', size:o.s || 22, bold:o.b, italics:o.i, color:o.c})]});
+    const k = [P(m.titulo || 'Memoria del proyecto', {h:D.HeadingLevel.TITLE}), P(`${m.convNombre}${m.entidad ? ' · ' + m.entidad : ''} · ${m.duracion} meses`, {i:true, c:'5D7691', after:240})];
+    Object.entries(secciones).forEach(([s,t]) => { k.push(P(SEC_T[s], {h:D.HeadingLevel.HEADING_1})); t.split(/\n/).forEach(l => k.push(P(l, {after:l.trim() ? 120 : 40}))); });
+    if(refs.length){ k.push(P('Referencias', {h:D.HeadingLevel.HEADING_1})); refs.forEach((r,i) => k.push(P(refTxt(r,i), {s:19}))); }
+    dl(nombreArch() + '.docx', await D.Packer.toBlob(new D.Document({creator:'GrantWriter', sections:[{properties:{page:{margin:{top:1440, bottom:1440, left:1440, right:1440}}}, children:k}]}))); toast('Word descargado');
+  }catch(e){ toast(e.message); }
+};
 
-// ─── EXPORT PDF ───────────────────────────────────────────────────────────────
-function exportarPDF(){
-  if(!resultado)return;
-  const btn=document.getElementById('btnPDF');
-  btn.disabled=true;btn.innerHTML='<div class="spinner"></div> Generando…';
-  const m=resultado.meta;
-  let html=`<style>body{font-family:Georgia,serif;font-size:11pt;color:#0d1f35;line-height:1.8}h1{font-size:16pt;color:#0a2240;margin-bottom:6px}h2{font-size:12pt;color:#1a6fad;margin-top:22px;margin-bottom:8px;border-bottom:1px solid #c8d8e8;padding-bottom:3px}.meta{font-size:9pt;color:#6a80a0;margin-bottom:16px;font-style:italic}.sec{white-space:pre-wrap;font-size:10.5pt;margin-bottom:12px}.ref{font-size:9pt;margin-bottom:4px;color:#2d4060}</style>`;
-  html+=`<h1>${m.titulo||'Memoria de Proyecto'}</h1><div class="meta">${m.convLabel} · ${m.entidad||''} · ${new Date().toLocaleDateString('es-ES')}</div>`;
-  resultado.meta.secList.forEach(sec=>{
-    if(!resultado.secciones[sec])return;
-    html+=`<h2>${SEC_LABELS[sec]||sec}</h2><div class="sec">${resultado.secciones[sec]}</div>`;
-  });
-  if(resultado.refs.length>0){
-    html+=`<h2>Referencias bibliográficas</h2>`;
-    resultado.refs.slice(0,20).forEach((r,i)=>html+=`<div class="ref">[${i+1}] ${r.authors||''} (${r.year||'s.f.'}). <em>${r.title||''}</em>.${r.doi?' DOI: '+r.doi:''}</div>`);
-  }
-  const el=document.createElement('div');el.innerHTML=html;document.body.appendChild(el);
-  const fn=`GrantWriter_${(m.titulo||'memoria').replace(/\s+/g,'_').substring(0,30)}.pdf`;
-  html2pdf().set({margin:[15,15,15,15],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}})
-    .from(el).save().then(()=>{
-      document.body.removeChild(el);
-      btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-file-pdf"></i> Descargar PDF';
-      showToast('PDF descargado','success');
-    });
+/* ══════════ EJEMPLOS Y MEMORIA DE MUESTRA ══════════ */
+const EJEMPLOS = [{"t": "Proyecto de investigación en salud", "d": "Cribado de retinopatía con IA · AEI", "conv": "aei", "campos": {"titulo": "RETINA-AP: cribado de retinopatía diabética con inteligencia artificial en atención primaria", "entidad": "Universidad Miguel Hernández de Elche", "area": "Oftalmología y salud digital", "ip": "Dra. Laura Martínez Soler", "duracion": "36", "presupuesto": "180.000 €", "desc": "La retinopatía diabética es una causa principal de ceguera evitable, pero muchos pacientes con diabetes no se hacen la revisión anual del fondo de ojo porque las consultas de oftalmología están saturadas. Proponemos un sistema de inteligencia artificial que analice las retinografías hechas en los centros de salud y clasifique a cada paciente en tres niveles: sin retinopatía, revisión en un año o derivación preferente a oftalmología. La novedad frente a los sistemas existentes es que se entrenará y validará con población española de atención primaria, con cámaras de gama media, y que explicará su decisión marcando las lesiones en la imagen para que el médico de familia la entienda. Haremos un estudio de validación diagnóstica frente a la lectura de dos oftalmólogos y después un piloto de implantación en centros de salud.", "equipo": "Grupo de Neurobiología Ocular de la UMH (oftalmología clínica y experimental) y grupo de estadística e inteligencia artificial de la Escuela Politécnica Superior de Orihuela. La IP coordina desde hace diez años proyectos de investigación en retina.", "datos": "Base de 2.400 retinografías anotadas del Departamento de Salud de Elche (2021-2024). Estudio piloto previo: sensibilidad del 91 % con 300 retinografías.", "instr": ""}}, {"t": "Proyecto de I+D empresarial", "d": "Sensores para riego de precisión · CDTI", "conv": "cdti", "campos": {"titulo": "AgroSense: sensores de humedad de bajo coste y modelos predictivos para riego de precisión en cítricos", "entidad": "Riegos del Segura S.L.", "area": "Agrotecnología", "ip": "Pablo Sánchez Ferrer", "duracion": "24", "presupuesto": "", "desc": "Los cultivos de cítricos de la Vega Baja riegan por calendario, sin medir la humedad real del suelo, lo que desperdicia agua en una zona con escasez estructural. Desarrollaremos sensores de humedad de bajo coste con conexión LoRa y un modelo que combine su lectura con la previsión meteorológica para decidir cuándo y cuánto regar. La innovación es el coste del sensor, pensado para pequeñas explotaciones, y un modelo que aprende de cada parcela. El proyecto incluye el diseño del sensor, su validación en campo y una plataforma web para el agricultor.", "equipo": "Empresa de instalaciones de riego con 15 años de actividad en la Vega Baja; ingeniero agrónomo y técnico electrónico en plantilla.", "datos": "Piloto en 12 hectáreas en Orihuela en 2025 con un 18 % de ahorro de agua.", "instr": ""}}];
+$('ejs').innerHTML = EJEMPLOS.map((e,i) => `<button type="button" data-ej="${i}"><b>${esc(e.t)}</b><small>${esc(e.d)}</small></button>`).join('');
+$$('#ejs [data-ej]').forEach(b => b.onclick = () => { const e = EJEMPLOS[+b.dataset.ej]; Object.entries(e.campos).forEach(([k,v]) => $(k).value = v); if(e.conv !== G.conv) selConv(e.conv); guardar(); toast('Proyecto de ejemplo cargado: ' + CONV[e.conv].t); });
+const DEMO = {"meta": {"conv": "aei", "convNombre": "AEI · Generación de Conocimiento", "titulo": "RETINA-AP: cribado de retinopatía diabética con inteligencia artificial en atención primaria", "entidad": "Universidad Miguel Hernández de Elche", "duracion": "36", "idioma": "es", "secs": ["resumen", "introduccion", "estado_arte", "objetivos", "metodologia", "equipo"], "fecha": "2026-09-29T10:00:00Z"}, "secciones": {"resumen": "RETINA-AP propone un sistema de inteligencia artificial para el cribado de la retinopatía diabética en los centros de salud, a partir de las retinografías que ya se realizan en atención primaria. El sistema clasificará a cada paciente en tres niveles (sin retinopatía, revisión en un año o derivación preferente) y señalará en la imagen las lesiones en que basa su decisión, para que el médico de familia pueda interpretarla.\n\nLos sistemas de aprendizaje profundo han mostrado un buen rendimiento diagnóstico [1] y se han utilizado de forma autónoma en consultas de atención primaria [3], pero su comportamiento varía entre poblaciones y equipos de captura [2]. Este proyecto los validará con población española y cámaras de gama media, partiendo de una base de 2.400 retinografías anotadas y de un estudio piloto con una sensibilidad del 91 %.\n\nEl proyecto se desarrollará en 36 meses en dos fases: un estudio de validación diagnóstica frente a la lectura de dos oftalmólogos y un piloto de implantación en centros de salud. Se espera reducir un 30 % las derivaciones innecesarias a oftalmología, con un presupuesto de 180.000 €.", "introduccion": "La retinopatía diabética es una de las principales causas de ceguera evitable en adultos en edad laboral y afecta a una proporción importante de las personas con diabetes [4]. Su detección precoz permite tratamientos eficaces, pero exige una revisión periódica del fondo de ojo que muchos pacientes no reciben, en parte por la saturación de las consultas de oftalmología.\n\nEn el Departamento de Salud de Elche la cobertura del cribado anual es [COMPLETAR: porcentaje de pacientes con diabetes con revisión de fondo de ojo en el último año]. Las retinografías se realizan en los centros de salud, pero su lectura depende de oftalmólogos, lo que retrasa el diagnóstico.\n\nRETINA-AP aborda este problema con un sistema que prioriza a los pacientes que necesitan atención especializada y libera a oftalmología de las lecturas normales.", "estado_arte": "El aprendizaje profundo aplicado a retinografías ha alcanzado una sensibilidad y una especificidad elevadas en la detección de la retinopatía diabética referible [1]. Estudios posteriores lo han validado en poblaciones multiétnicas y con distintas cámaras, y han mostrado que el rendimiento puede variar según el origen de las imágenes [2]. En Estados Unidos, un sistema autónomo se ha evaluado en un ensayo pivotal en consultas de atención primaria [3].\n\nSin embargo, la mayoría de estos sistemas se han desarrollado con imágenes de alta calidad y poblaciones distintas de la española, y ofrecen poca explicación de sus decisiones al clínico. Faltan estudios de validación en atención primaria española con cámaras de gama media y con un sistema que muestre las lesiones detectadas. RETINA-AP se centra en esa laguna.", "objetivos": "Objetivo general: desarrollar y validar un sistema de inteligencia artificial explicable para el cribado de la retinopatía diabética en atención primaria.\n\nObjetivos específicos:\n- OE1. Entrenar un modelo de clasificación en tres niveles con la base de 2.400 retinografías anotadas del Departamento de Salud de Elche.\n- OE2. Validar su rendimiento diagnóstico frente a la lectura consensuada de dos oftalmólogos, con una sensibilidad objetivo de [COMPLETAR: sensibilidad mínima aceptable].\n- OE3. Evaluar su implantación en [COMPLETAR: número de centros de salud] centros de salud: aceptabilidad, tiempos y derivaciones.", "metodologia": "El proyecto se organiza en cuatro paquetes de trabajo a lo largo de 36 meses.\n\n- PT1. Preparación de datos y entrenamiento (meses 1-12): revisión de la anotación de las 2.400 retinografías, entrenamiento del modelo y del módulo que marca las lesiones.\n- PT2. Validación diagnóstica (meses 10-22): estudio prospectivo con [COMPLETAR: tamaño muestral y su cálculo] pacientes, con la lectura de dos oftalmólogos como referencia. Se estimarán sensibilidad, especificidad y valores predictivos con sus intervalos de confianza.\n- PT3. Piloto de implantación (meses 20-34): uso del sistema en centros de salud y registro de derivaciones, tiempos y opinión de los profesionales.\n- PT4. Coordinación y difusión (meses 1-36).\n\nLos datos se tratarán de forma seudonimizada, con la aprobación del comité de ética [COMPLETAR: comité y fecha de aprobación].", "equipo": "El proyecto une al Grupo de Neurobiología Ocular de la Universidad Miguel Hernández, con experiencia en oftalmología clínica y experimental, y al grupo de estadística e inteligencia artificial de la Escuela Politécnica Superior de Orihuela. La investigadora principal, la Dra. Laura Martínez Soler, coordina desde hace diez años proyectos de investigación en retina.\n\nPublicaciones y proyectos previos relevantes del equipo: [COMPLETAR: tres a cinco publicaciones o proyectos del equipo relacionados con el tema]."}, "refs": [{"title": "Development and Validation of a Deep Learning Algorithm for Detection of Diabetic Retinopathy in Retinal Fundus Photographs", "authors": "Gulshan V, Peng L, Coram M et al.", "year": 2016, "doi": "10.1001/jama.2016.17216", "src": "OpenAlex", "abstract": "", "uso": "Rendimiento diagnóstico del aprendizaje profundo en retinografías"}, {"title": "Development and Validation of a Deep Learning System for Diabetic Retinopathy and Related Eye Diseases Using Retinal Images From Multiethnic Populations With Diabetes", "authors": "Ting DSW, Cheung CY, Lim G et al.", "year": 2017, "doi": "10.1001/jama.2017.18152", "src": "Semantic Scholar", "abstract": "", "uso": "Validación en poblaciones distintas de la de entrenamiento"}, {"title": "Pivotal trial of an autonomous AI-based diagnostic system for detection of diabetic retinopathy in primary care offices", "authors": "Abràmoff MD, Lavin PT, Birch M et al.", "year": 2018, "doi": "10.1038/s41746-018-0040-6", "src": "Europe PMC", "abstract": "", "uso": "Uso de IA autónoma en atención primaria"}, {"title": "Global Prevalence and Major Risk Factors of Diabetic Retinopathy", "authors": "Yau JWY, Rogers SL, Kawasaki R et al.", "year": 2012, "doi": "10.2337/dc11-1909", "src": "PubMed", "abstract": "", "uso": "Magnitud del problema"}, {"title": "Artificial intelligence in retina: a review of screening programmes", "authors": "(ejemplo de referencia no citada)", "year": 2021, "doi": "", "src": "OpenAlex", "abstract": "", "uso": "Contexto general"}], "valoracion": {"criterios": [{"nombre": "Calidad y novedad científica", "valoracion": 72, "comentario": "La laguna está bien planteada; la novedad depende de demostrar que la población y las cámaras cambian el rendimiento."}, {"nombre": "Metodología y plan de trabajo", "valoracion": 64, "comentario": "Falta el cálculo del tamaño muestral y los criterios de éxito del piloto."}, {"nombre": "Capacidad del equipo", "valoracion": 60, "comentario": "Hay que detallar las publicaciones previas del equipo."}, {"nombre": "Impacto y difusión", "valoracion": 58, "comentario": "No se ha incluido la sección de impacto ni el plan de difusión."}], "fortalezas": ["Base de datos propia anotada", "Colaboración clínica y técnica"], "mejoras": []}, "coherencia": [{"donde": "Resumen y Objetivos", "problema": "El resumen promete reducir las derivaciones innecesarias, pero ningún objetivo ni tarea mide ese resultado."}], "qa": "Lo sólido: la justificación del problema, el estado del arte con una laguna clara y un plan de trabajo por paquetes con fechas.\n\nQué completar o verificar a mano: la cobertura actual del cribado, la sensibilidad objetivo, el número de centros y el tamaño muestral con su cálculo, la aprobación del comité de ética y las publicaciones del equipo. Verifica también el «30 %» del resumen: no procede de los datos aportados.\n\nRecomendaciones: 1) calcula el tamaño muestral antes de enviar; 2) añade las secciones de impacto y difusión, que la convocatoria valora; 3) lee los cuatro artículos citados y confirma que respaldan cada afirmación."};
+function demo(){
+  if(corriendo) return;
+  const e = EJEMPLOS[0]; selConv(e.conv); Object.entries(e.campos).forEach(([k,v]) => $(k).value = v);
+  G = Object.assign(G0(), {conv:e.conv, secs:DEMO.meta.secs, res:JSON.parse(JSON.stringify(DEMO)), _demo:true});
+  pintaSecs(); go(5); toast('Memoria de ejemplo (AEI). Fíjate en las marcas amarillas y rojas: es lo que tendrías que completar o verificar.', 6000);
 }
+$('btnDemo').onclick = demo;
 
-function copiarTodo(){
-  if(!resultado)return;
-  const m=resultado.meta;
-  let t=`${m.titulo||'MEMORIA DE PROYECTO'}\n${m.convLabel} · ${new Date().toLocaleDateString('es-ES')}\n${'═'.repeat(60)}\n\n`;
-  resultado.meta.secList.forEach(sec=>{
-    if(resultado.secciones[sec])t+=`${SEC_LABELS[sec].toUpperCase()}\n${'─'.repeat(40)}\n${resultado.secciones[sec]}\n\n`;
-  });
-  navigator.clipboard.writeText(t).then(()=>showToast('Memoria copiada al portapapeles','success'));
+/* ══════════ AYUDA, SESIÓN Y ARRANQUE ══════════ */
+const GLOS = [['[COMPLETAR: …]','Un dato que la memoria necesita y que no aportaste. Los agentes lo marcan en lugar de inventarlo.'],['Cifra sin respaldo','Un número del texto que no aparece en tus datos, documentos ni resúmenes bibliográficos. Puede ser correcto, pero verifícalo.'],['Cita [N]','Remite a la lista de referencias. Al exportar se renumeran por orden de aparición y solo se incluyen las citadas.'],['Bibliografía pertinente','Se buscan trabajos en seis bases y un agente lee sus resúmenes para quedarse con los que sirven al proyecto. Aun así, abre y lee lo que cites.'],['Valoración','La opinión de un agente con los criterios de la convocatoria. Útil para mejorar, pero no predice la nota.'],['Criterios','Los que trae cada convocatoria son orientativos. Pega los de las bases oficiales del año para mejores resultados.'],['Privacidad','Todo se procesa en tu navegador. El texto viaja a OpenAI; las consultas bibliográficas, a las bases científicas.']];
+$('glos').innerHTML = GLOS.map(g => `<div><b>${esc(g[0])}</b><span>${esc(g[1])}</span></div>`).join('');
+$('btnHelp').onclick = () => $('mHelp').classList.add('on');
+$$('.modal').forEach(m => m.addEventListener('click', e => { if(e.target === m || e.target.hasAttribute('data-close')) m.classList.remove('on'); }));
+CAMPOS.forEach(k => $(k).addEventListener('change', guardar));
+function borrador(){
+  try{ const s = JSON.parse(localStorage.getItem('grantwriter_sesion') || 'null'); if(!s || !(s.f?.desc || s.G?.res)) return;
+    $('draftTxt').innerHTML = `${s.G.res ? 'Memoria' : 'Proyecto'} <b>${esc(s.f.titulo || 'sin título')}</b> · ${new Date(s.t).toLocaleDateString('es-ES')}`; $('draftBox').classList.remove('hidden');
+    $('btnDraftGo').onclick = () => { G = Object.assign(G0(), s.G); CAMPOS.forEach(k => { if(s.f[k] != null) $(k).value = s.f[k]; }); if(G.conv) selConv(G.conv, true); pintaSecs(); pintaFiles(); go(G.res ? 5 : 2); };
+    $('btnDraftNo').onclick = () => { localStorage.removeItem('grantwriter_sesion'); $('draftBox').classList.add('hidden'); };
+  }catch(e){}
 }
-
-function nuevo(){
-  resultado=null;refsEncontradas=[];docFiles=[];docTextos=[];
-  convActiva=null;
-  document.querySelectorAll('.conv-card').forEach(c=>c.classList.remove('active'));
-  document.getElementById('customConvWrap').style.display='none';
-  document.getElementById('tituloProyecto').value='';document.getElementById('entidad').value='';
-  document.getElementById('area').value='';document.getElementById('ip').value='';
-  document.getElementById('descripcionProyecto').value='';document.getElementById('equipo').value='';
-  document.getElementById('instrucciones').value='';
-  document.getElementById('docFileList').innerHTML='';
-  document.getElementById('docUploadZone').classList.remove('has-file');
-  buildAgentsList();setStep(1);
-}
-
-// ─── UTILS ────────────────────────────────────────────────────────────────────
-function toggleApiKey(){
-  const i=document.getElementById('apiKey'),ic=document.getElementById('eyeIcon');
-  i.type=i.type==='password'?'text':'password';
-  ic.className=i.type==='password'?'fa-regular fa-eye':'fa-regular fa-eye-slash';
-}
-let toastTimer;
-function showToast(msg,type='info'){
-  const t=document.getElementById('toast');
-  t.className='toast'+(type==='error'?' error':type==='success'?' success':'');
-  t.querySelector('i').className=type==='error'?'fa-solid fa-circle-xmark':type==='success'?'fa-solid fa-circle-check':'fa-solid fa-circle-info';
-  document.getElementById('toastMsg').textContent=msg;
-  t.classList.add('show');clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
-}
-
-// Drag & drop docs
-const dz=document.getElementById('docUploadZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover');});
-dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'));
-dz.addEventListener('drop',e=>{
-  e.preventDefault();dz.classList.remove('dragover');
-  const fi=document.getElementById('docFile');
-  const dt=new DataTransfer();
-  Array.from(e.dataTransfer.files).forEach(f=>dt.items.add(f));
-  fi.files=dt.files;onDocSelected(fi);
-});
+/* la clave antigua de la versión 1 pasa a la compartida */
+if(!localStorage.getItem('ia_openai_key') && localStorage.getItem('grantwriter_apikey')) localStorage.setItem('ia_openai_key', localStorage.getItem('grantwriter_apikey'));
+$('apiKey').value = localStorage.getItem('ia_openai_key') || ''; $('model').value = localStorage.getItem('grantwriter_model') || 'gpt-6-luna';
+pintaConvs(); pintaSecs(); borrador(); go(0);
 </script>
 </body>
 </html>
